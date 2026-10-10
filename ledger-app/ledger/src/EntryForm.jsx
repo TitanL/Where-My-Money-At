@@ -43,17 +43,48 @@ function Calendar({ value, onPick }) {
   );
 }
 
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function DayDropdown({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="dd" onKeyDown={e => e.key === 'Escape' && setOpen(false)}>
+      <button type="button" className="dd-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(!open)}>
+        {value == null ? 'Day' : WEEKDAYS[value].slice(0, 3)} <span>▾</span>
+      </button>
+      {open && (
+        <ul className="dd-list" role="listbox">
+          {WEEKDAYS.map((d, i) => (
+            <li key={d} role="option" aria-selected={value === i}>
+              <button type="button" className={value === i ? 'sel' : ''} onClick={() => { onChange(i); setOpen(false); }}>{d}</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function RecMenu({ value, onDone, onCancel }) {
   const [freq, setFreq] = useState(value.freq || 'none'), [day, setDay] = useState(value.day ?? '');
+  const [weekday, setWeekday] = useState(value.weekday ?? null);
   const opts = [['weekly', 'Every week'], ['biweekly', 'Every 2 weeks'], ['monthly', 'Monthly'], ['none', 'None']];
+  const weekly = freq === 'weekly' || freq === 'biweekly';
   return (
     <div className="menu rec">
       <h4>Custom Recurrence</h4>
       {opts.map(([k, l]) => <button type="button" key={k} className={freq === k ? 'sel' : ''} onClick={() => setFreq(k)}>{l}</button>)}
-      <label>On: <input inputMode="numeric" placeholder="Day" value={day} onChange={e => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))} /></label>
+      {weekly && <div className="onrow"><span>On:</span><DayDropdown value={weekday} onChange={setWeekday} /></div>}
+      {freq === 'monthly' && (
+        <label>On: <input inputMode="numeric" placeholder="Day" value={day} onChange={e => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))} /></label>
+      )}
       <div className="acts">
         <button type="button" onClick={onCancel}>Cancel</button>
-        <button type="button" className="btn sm" onClick={() => onDone({ freq, day: freq === 'monthly' && +day >= 1 && +day <= 31 ? +day : null })}>Done</button>
+        <button type="button" className="btn sm" onClick={() => onDone({
+          freq,
+          day: freq === 'monthly' && +day >= 1 && +day <= 31 ? +day : null,
+          weekday: weekly ? weekday : null,
+        })}>Done</button>
       </div>
     </div>
   );

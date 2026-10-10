@@ -12,9 +12,11 @@ export const money = n => n.toLocaleString('en-US', { style: 'currency', currenc
 export const signed = t => (t.type === 'income' ? '+' : '-') + money(t.amount);
 const ord = n => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 export const isRec = t => (t.recurrence?.freq || 'none') !== 'none';
+const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const freqLabel = t => {
-  const r = t.recurrence || {};
-  return r.freq === 'weekly' ? 'Every week' : r.freq === 'biweekly' ? 'Every 2 weeks'
+  const r = t.recurrence || {}, w = r.weekday != null ? WD[r.weekday] : null;
+  return r.freq === 'weekly' ? (w ? `Every ${w}` : 'Every week')
+    : r.freq === 'biweekly' ? (w ? `Every 2 weeks on ${w}` : 'Every 2 weeks')
     : r.freq === 'monthly' ? `${ord(r.day || +t.date.slice(8))} of every month` : 'None';
 };
 export const perMonth = t => t.amount * { weekly: 52 / 12, biweekly: 26 / 12, monthly: 1 }[t.recurrence.freq];
@@ -36,8 +38,10 @@ export function expand(txs, from, to) {
         add(t, d);
       }
     } else {
-      const step = (f === 'weekly' ? 7 : 14) * 864e5;
-      for (let d = s; d <= end; d = new Date(+d + step)) add(t, d);
+      const step = (f === 'weekly' ? 7 : 14) * 864e5, wd = t.recurrence.weekday;
+      let d = s;
+      if (wd != null) d = new Date(+s + ((wd - s.getUTCDay() + 7) % 7) * 864e5); // first chosen weekday on/after the entry date
+      for (; d <= end; d = new Date(+d + step)) add(t, d);
     }
   }
   return out;

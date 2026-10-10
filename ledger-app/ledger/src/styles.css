@@ -67,3 +67,9 @@ details summary::after{content:' ▼'}
 td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb48f;border:0;border-radius:8px;padding:3px}
 @media (prefers-reduced-motion:no-preference){.track i,.donut circle+circle{transition:all .4s}}
 .receipt img{display:block;max-width:100%;border-radius:12px;margin-bottom:6px}.receipt button{text-decoration:underline}
+.onrow{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.dd{position:relative}
+.dd-btn{display:flex;justify-content:space-between;gap:8px;min-width:88px;padding:3px 14px;border-radius:99px;background:var(--tan);color:var(--dark);font-weight:700}
+.dd-list{position:absolute;top:calc(100% + 6px);left:0;z-index:10;min-width:160px;margin:0;padding:6px;list-style:none;background:var(--dark);border:1px solid var(--mid);border-radius:16px;box-shadow:0 8px 24px #0008}
+.dd-list button{display:block;width:100%;padding:6px 12px;border-radius:99px;text-align:left;color:var(--tan);font-weight:600}
+.dd-list button:hover,.dd-list .sel{background:var(--mid);color:var(--tan)}
