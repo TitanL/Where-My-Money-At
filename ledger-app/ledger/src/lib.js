@@ -10,7 +10,7 @@ export const monthRange = (y, m) => [`${y}-${pad(m + 1)}-01`, ymd(new Date(Date.
 
 // ── Categories & colors ──
 export const DEFAULT_CATS = ['Groceries', 'Housing', 'Subs', 'Transport', 'Dining', 'Health', 'Income', 'Fun', 'School', 'Other'];
-const COLORS = { Groceries: '#6fa66b', Housing: '#b5835a', Subs: '#5e96da', Transport: '#5f5a5a', Dining: '#ddca5d', Health: '#d2429b', Income: '#d99a36', Fun: '#976dd6', School: '#dc4545' };
+const COLORS = { Groceries: '#6fa66b', Housing: '#b5835a', Subs: '#5e96da', Transport: '#5f5a5a', Dining: '#865736', Health: '#d2429b', Income: '#d99a36', Fun: '#976dd6', School: '#dc4545' };
 // Color chosen in Settings wins, then the built-in default, then gray
 export const catColor = (c, map = {}) => map[c] || COLORS[c] || '#a08f7d';
 
