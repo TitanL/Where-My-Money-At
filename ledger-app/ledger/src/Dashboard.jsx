@@ -20,12 +20,19 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   const income = sum('income'), expense = sum('expense'), net = income - expense;
   // Savings rate = net ÷ income
   const rate = income > 0 ? (net / income) * 100 : 0;
-  // Share of income not spent (drives the mustard arc of the donut)
-  const keep = income > 0 ? Math.min(1, Math.max(0, net / income)) : 0;
   // Progress toward the monthly savings goal (0 to 1)
   const gp = goal > 0 ? Math.min(1, Math.max(0, net) / goal) : 0;
   // Expenses grouped by category, largest first
   const byCat = Object.entries(es.filter(e => e.type === 'expense').reduce((a, e) => (a[e.category] = (a[e.category] || 0) + e.amount, a), {})).sort((a, b) => b[1] - a[1]);
+  // Donut slices: one per spending category, then what's left in mustard.
+  // The ring represents your income (or your spending, if you overspent).
+  const total = Math.max(income, expense);
+  let off = 0;
+  const segs = total > 0
+    ? [...byCat.map(([c, v]) => [c, catColor(c, colors), v]), ['Left', 'var(--mus)', Math.max(0, net)]]
+        .filter(([, , v]) => v > 0)
+        .map(([label, color, v]) => { const len = (v / total) * C; const s = { label, color, len, off, v }; off += len; return s; })
+    : [];
   // Largest category gets the full-width bar
   const max = byCat[0]?.[1] || 1;
   // Newest 25 entries
@@ -46,11 +53,16 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
       <button className={all ? 'on' : ''} onClick={() => setAll(true)}>All Time</button>
     </div>
 
-    {/* Donut chart: red = spent, mustard = what is left, net balance in the middle */}
+    {/* Donut chart: colored slices = spending by category, mustard = what is left, net balance in the middle */}
     <div className="donut">
       <svg viewBox="0 0 200 200" role="img" aria-label={`Net balance ${money(net)}`}>
-        <circle cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke={expense > 0 ? 'var(--red)' : '#dcb48f'} />
-        <circle cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke="var(--mus)" strokeDasharray={`${keep * C} ${C}`} />
+        {total === 0 && <circle cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke="#dcb48f" />}
+        {segs.map(s => (
+          <circle key={s.label} cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke={s.color}
+            strokeDasharray={`${s.len} ${C - s.len}`} strokeDashoffset={-s.off}>
+            <title>{s.label}: {money(s.v)}</title>
+          </circle>
+        ))}
       </svg>
       <div><span>Net balance</span><b>{money(net)}</b></div>
     </div>

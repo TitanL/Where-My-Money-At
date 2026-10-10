@@ -9,8 +9,8 @@ export const today = () => { const n = new Date(); return `${n.getFullYear()}-${
 export const monthRange = (y, m) => [`${y}-${pad(m + 1)}-01`, ymd(new Date(Date.UTC(y, m + 1, 0)))];
 
 // ── Categories & colors ──
-export const DEFAULT_CATS = ['Groceries', 'Housing', 'Subscriptions', 'Furniture', 'Transport', 'Dining', 'Health', 'Income', 'Other'];
-const COLORS = { Groceries: '#6fa66b', Housing: '#b5835a', Subscriptions: '#d4706a', Furniture: '#8e84c9', Transport: '#5f8fa3', Dining: '#c9955a', Health: '#7aa8a0', Income: '#d99a36' };
+export const DEFAULT_CATS = ['Groceries', 'Housing', 'Subs', 'Transport', 'Dining', 'Health', 'Income', 'Fun', 'School', 'Other'];
+const COLORS = { Groceries: '#6fa66b', Housing: '#b5835a', Subs: '#5e96da', Transport: '#5f5a5a', Dining: '#ddca5d', Health: '#d2429b', Income: '#d99a36', Fun: '#976dd6', School: '#dc4545' };
 // Color chosen in Settings wins, then the built-in default, then gray
 export const catColor = (c, map = {}) => map[c] || COLORS[c] || '#a08f7d';
 
