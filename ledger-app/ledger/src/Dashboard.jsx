@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { expand, monthRange, money, signed, catColor, today } from './lib';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const C = 2 * Math.PI * 90;
+const C = 2 * Math.PI * 80;
 
 export default function Dashboard({ txs, goal, onEdit }) {
   const n = new Date();
@@ -33,8 +33,8 @@ export default function Dashboard({ txs, goal, onEdit }) {
 
     <div className="donut">
       <svg viewBox="0 0 200 200" role="img" aria-label={`Net balance ${money(net)}`}>
-        <circle cx="100" cy="100" r="90" fill="none" strokeWidth="26" stroke={expense > 0 ? 'var(--red)' : '#dcb48f'} />
-        <circle cx="100" cy="100" r="90" fill="none" strokeWidth="26" stroke="var(--mus)" strokeDasharray={`${keep * C} ${C}`} />
+        <circle cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke={expense > 0 ? 'var(--red)' : '#dcb48f'} />
+        <circle cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke="var(--mus)" strokeDasharray={`${keep * C} ${C}`} />
       </svg>
       <div><span>Net balance</span><b>{money(net)}</b></div>
     </div>

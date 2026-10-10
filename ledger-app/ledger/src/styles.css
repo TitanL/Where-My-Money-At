@@ -30,7 +30,7 @@ details summary::after{content:' ▼'}
 .cat{display:grid;grid-template-columns:104px 1fr;align-items:center;gap:8px;font-size:.9rem;font-weight:600;margin:5px 0}
 .cat i{display:block;height:14px;border-radius:99px}
 .entry{display:grid;grid-template-columns:46px 1fr auto 28px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.entry.rec{grid-template-columns:1fr auto 88px 24px}.entry.rec small:last-of-type{text-align:right}
+.entry.nodate{grid-template-columns:1fr auto 28px}
 .entry small{display:block;font-weight:600}.edit{color:var(--mid);font-size:1.2rem}
 .sub{text-align:right;display:block;margin:14px 0 0;font-size:1.25rem}
 .fab{position:fixed;bottom:24px;right:max(20px,calc(50vw - 220px));width:72px;height:72px;border-radius:50%;background:var(--dark);color:var(--tan);font-size:2.2rem;box-shadow:0 4px 12px #0004}

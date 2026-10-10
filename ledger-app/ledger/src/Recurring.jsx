@@ -1,4 +1,4 @@
-import { freqLabel, isRec, money, perMonth } from './lib';
+import { catColor, freqLabel, isRec, money, perMonth } from './lib';
 
 export default function Recurring({ txs, onEdit }) {
   const rec = txs.filter(isRec);
@@ -6,13 +6,16 @@ export default function Recurring({ txs, onEdit }) {
   const total = l => l.reduce((a, t) => a + perMonth(t), 0);
   const net = total(inc) - total(bills);
   const List = ({ items, cls, sign }) => items.length === 0 ? <p className="mid">Nothing here yet.</p> : items.map(t => (
-    <div className="entry rec" key={t.id}>
-      <div><b>{t.title}</b><small className="mid">{t.category}</small></div>
-      <b className={cls}>{sign}{money(t.amount)}</b>
+  <div className="entry nodate" key={t.id}>
+    <div>
+      <b>{t.title}</b>
+      <small style={{ color: catColor(t.category) }}>{t.category}</small>
       <small className="mid">{freqLabel(t)}</small>
-      <button className="edit" aria-label={`Edit ${t.title}`} onClick={() => onEdit(t)}>✎</button>
     </div>
-  ));
+    <b className={cls}>{sign}{money(t.amount)}</b>
+    <button className="edit" aria-label={`Edit ${t.title}`} onClick={() => onEdit(t)}>✎</button>
+  </div>
+));
   return <>
     <h1 className="title">Net Recurring</h1>
     <h1 className={net < 0 ? 'red big' : 'mus big'}>{net < 0 ? '-' : ''}{money(Math.abs(net))}</h1>
