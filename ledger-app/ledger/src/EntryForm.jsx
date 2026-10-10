@@ -1,10 +1,22 @@
 import { useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db } from './firebase';
 import { pad, today, freqLabel } from './lib';
 
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Shrink a photo to a small JPEG data URL (< ~260 KB) so it fits in a Firestore document (1 MiB limit).
+async function shrink(file) {
+  const bmp = await createImageBitmap(file);
+  for (const max of [1200, 900, 700, 500]) {
+    const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    for (const q of [0.7, 0.55, 0.4]) { const url = c.toDataURL('image/jpeg', q); if (url.length < 350000) return url; }
+  }
+  throw new Error('That photo is too large to store. Try a smaller image.');
+}
 
 function Calendar({ value, onPick }) {
   const [y0, m0] = value.split('-').map(Number);
@@ -50,25 +62,25 @@ function RecMenu({ value, onDone, onCancel }) {
 export default function EntryForm({ user, tx, categories, onClose }) {
   const [f, setF] = useState({
     title: tx.title || '', category: tx.category || '', amount: tx.amount != null ? String(tx.amount) : '',
-    type: tx.type || 'expense', date: tx.date || today(), notes: tx.notes || '', photoUrl: tx.photoUrl || '',
+    type: tx.type || 'expense', date: tx.date || today(), notes: tx.notes || '', photo: tx.photo || '',
     recurrence: { freq: 'none', day: null, ...tx.recurrence },
   });
-  const [file, setFile] = useState(null), [cal, setCal] = useState(false), [rec, setRec] = useState(false);
+  const [cal, setCal] = useState(false), [rec, setRec] = useState(false);
   const [busy, setBusy] = useState(false), [err, setErr] = useState('');
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
+  const pick = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    setErr('');
+    try { set('photo', await shrink(file)); } catch (x) { setErr(x.message); }
+    e.target.value = '';
+  };
 
   async function submit() {
     const amount = parseFloat(f.amount);
     if (!f.title.trim() || !(amount > 0) || !f.category) return setErr('Add a title, a category and an amount above 0.');
     setBusy(true); setErr('');
     try {
-      let photoUrl = f.photoUrl;
-      if (file) {
-        const r = ref(storage, `users/${user.uid}/receipts/${Date.now()}-${file.name}`);
-        await uploadBytes(r, file);
-        photoUrl = await getDownloadURL(r);
-      }
-      const data = { title: f.title.trim(), category: f.category, amount, type: f.type, date: f.date, recurrence: f.recurrence, notes: f.notes, photoUrl };
+      const data = { title: f.title.trim(), category: f.category, amount, type: f.type, date: f.date, recurrence: f.recurrence, notes: f.notes, photo: f.photo };
       if (tx.id) await updateDoc(doc(db, 'users', user.uid, 'transactions', tx.id), data);
       else await addDoc(collection(db, 'users', user.uid, 'transactions'), { ...data, createdAt: serverTimestamp() });
       onClose();
@@ -101,10 +113,9 @@ export default function EntryForm({ user, tx, categories, onClose }) {
       </div>
       <div className="pill-input wide notes">
         <input placeholder="Notes:" value={f.notes} onChange={e => set('notes', e.target.value)} />
-        <label aria-label="Attach receipt photo">📷<input type="file" accept="image/*" hidden onChange={e => setFile(e.target.files[0] || null)} /></label>
+        <label aria-label="Attach receipt photo">📷<input type="file" accept="image/*" hidden onChange={pick} /></label>
       </div>
-      {file && <small>Attached: {file.name}</small>}
-      {!file && f.photoUrl && <small><a href={f.photoUrl} target="_blank" rel="noreferrer">View attached receipt</a></small>}
+      {f.photo && <div className="receipt"><img src={f.photo} alt="Receipt" /><button type="button" onClick={() => set('photo', '')}>Remove photo</button></div>}
       {err && <p className="err">{err}</p>}
       <div className="acts">
         {tx.id ? <button type="button" onClick={remove}>Delete</button> : <span />}

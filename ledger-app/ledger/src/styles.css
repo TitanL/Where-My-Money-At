@@ -66,3 +66,4 @@ details summary::after{content:' ▼'}
 .scroll{overflow-x:auto;margin:12px 0}table{border-collapse:collapse;width:100%;font-size:.85rem}
 td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb48f;border:0;border-radius:8px;padding:3px}
 @media (prefers-reduced-motion:no-preference){.track i,.donut circle+circle{transition:all .4s}}
+.receipt img{display:block;max-width:100%;border-radius:12px;margin-bottom:6px}.receipt button{text-decoration:underline}

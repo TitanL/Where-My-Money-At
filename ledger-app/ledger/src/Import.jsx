@@ -49,7 +49,7 @@ export default function Import({ user, categories, onDone }) {
       const b = writeBatch(db);
       pick.slice(i, i + 400).forEach(r => b.set(doc(collection(db, 'users', user.uid, 'transactions')), {
         title: r.title, category: r.category, amount: r.amount, type: r.type, date: r.date,
-        recurrence: { freq: 'none', day: null }, notes: 'Imported from CSV', photoUrl: '', createdAt: serverTimestamp(),
+        recurrence: { freq: 'none', day: null }, notes: 'Imported from CSV', photo: '', createdAt: serverTimestamp(),
       }));
       await b.commit();
     }
