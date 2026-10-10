@@ -85,9 +85,6 @@ function RecMenu({ value, onDone, onCancel }) {
       <h4>Custom Recurrence</h4>
       {opts.map(([k, l]) => <button type="button" key={k} className={freq === k ? 'sel' : ''} onClick={() => setFreq(k)}>{l}</button>)}
       {weekly && <div className="onrow"><span>On:</span><DayDropdown value={weekday} onChange={setWeekday} /></div>}
-      {freq === 'monthly' && (
-        <label>On: <input inputMode="numeric" placeholder="Day" value={day} onChange={e => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))} /></label>
-      )}
       <div className="acts">
         <button type="button" onClick={onCancel}>Cancel</button>
         <button type="button" className="btn sm" onClick={() => onDone({

@@ -27,6 +27,8 @@ const SWATCHES = ['#d4706a', '#8e84c9', '#5f8fa3', '#d99a36', '#a0693d'];
 // Settings screen: category list with colors, and a form to add categories
 export function Settings({ user, categories, colors }) {
   const [name, setName] = useState(''), [color, setColor] = useState(SWATCHES[0]);
+  // custom color picked with the + button (null = none yet)
+  const [custom, setCustom] = useState(null);
   // Merge changes into the settings document
   const save = data => setDoc(settingsRef(user), data, { merge: true });
   // Add a new category with the chosen color (ignores blanks and duplicates)
@@ -56,7 +58,11 @@ export function Settings({ user, categories, colors }) {
         <button key={s} type="button" role="radio" aria-checked={color === s} aria-label={s}
           className={color === s ? 'on' : ''} style={{ background: s }} onClick={() => setColor(s)} />
       ))}
-      <input type="color" className="colorpick" value={color} onChange={e => setColor(e.target.value)} aria-label="Custom color" />
+      <label className={`colorpick${custom ? ' set' : ''}${custom && color === custom ? ' on' : ''}`}
+        style={custom ? { background: custom } : undefined} aria-label="Custom color">
+        {!custom && '+'}
+        <input type="color" value={custom || color} onChange={e => { setCustom(e.target.value); setColor(e.target.value); }} />
+      </label>
     </div>
     <button className="btn" onClick={add}>Add category</button>
   </>;

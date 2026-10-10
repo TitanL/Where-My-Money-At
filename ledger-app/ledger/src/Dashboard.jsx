@@ -40,12 +40,17 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   // Move to the previous / next month
   const shift = k => setYm(([y, m]) => { const d = new Date(y, m + k, 1); return [d.getFullYear(), d.getMonth()]; });
 
+  // Month title and its font size. Longer names get a smaller font so the arrows never move.
+  const title = all ? 'All Time' : MONTHS[ym[1]];
+  const size = title.length <= 5 ? 3.4 : title.length <= 7 ? 2.9 : title.length === 8 ? 2.6 : 2.3;
+
   return <>
-    {/* Month header with arrows (arrows hidden in All Time) */}
+    {/* Year above the month, then the month header. Arrows keep their place (hidden in All Time) */}
+    <div className="year">{all ? '' : ym[0]}</div>
     <div className="month">
-      {!all && <button aria-label="Previous month" onClick={() => shift(-1)}>◀</button>}
-      <h1>{all ? 'All Time' : MONTHS[ym[1]]}</h1>
-      {!all && <button aria-label="Next month" onClick={() => shift(1)}>▶</button>}
+      <button className={all ? 'ghost' : ''} aria-label="Previous month" onClick={() => shift(-1)}>◀</button>
+      <h1 style={{ fontSize: `${size}rem` }}>{title}</h1>
+      <button className={all ? 'ghost' : ''} aria-label="Next month" onClick={() => shift(1)}>▶</button>
     </div>
     {/* Monthly / All Time toggle */}
     <div className="pills">
