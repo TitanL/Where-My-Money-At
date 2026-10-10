@@ -12,11 +12,18 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   const [ym, setYm] = useState([n.getFullYear(), n.getMonth()]);
   const [all, setAll] = useState(false);
   // the period (month or All Time) whose full entry list is open
-  const [expanded, setExpanded] = useState(null); 
+  const [expanded, setExpanded] = useState(null);
+  // categories ticked in the filter (empty = show everything)
+  const [filter, setFilter] = useState([]);
+  const [filterOpen, setFilterOpen] = useState(false);
   // Date range for the current view
   const [from, to] = all ? ['0000-01-01', today()] : monthRange(...ym);
   // Transactions in range, with recurring entries expanded into each occurrence
   const es = expand(txs, from, to);
+  // Categories present in this period (the filter menu options) and the entries that pass the filter
+  const periodCats = [...new Set(es.map(e => e.category))].sort();
+  const filtered = filter.length ? es.filter(e => filter.includes(e.category)) : es;
+  const toggleCat = c => setFilter(f => (f.includes(c) ? f.filter(x => x !== c) : [...f, c]));
   // ── Totals ──
   const sum = t => es.filter(e => e.type === t).reduce((a, e) => a + e.amount, 0);
   const income = sum('income'), expense = sum('expense'), net = income - expense;
@@ -38,7 +45,7 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   // Largest category gets the full-width bar
   const max = byCat[0]?.[1] || 1;
   // Newest first. Only the first 25 show until "Show more" is tapped for this period.
-  const sorted = [...es].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
   const showAll = expanded === from + to;
   const recent = showAll ? sorted : sorted.slice(0, 25);
   // Move to the previous / next month
@@ -99,7 +106,30 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
 
     {/* Recent entries with edit buttons */}
     <details open><summary>Recent Entries</summary>
-      {recent.length === 0 && <p className="mid">Tap + to add your first entry.</p>}
+      {/* Category filter */}
+      <div className="filterbar" onKeyDown={e => e.key === 'Escape' && setFilterOpen(false)}>
+        <button className={`filter-btn${filter.length ? ' active' : ''}`} aria-expanded={filterOpen} onClick={() => setFilterOpen(!filterOpen)}>
+          Filter{filter.length ? ` (${filter.length})` : ''} <span>▾</span>
+        </button>
+        {filterOpen && (
+          <div className="menu filter-menu">
+            {periodCats.length === 0 && <p className="mid">No categories yet.</p>}
+            {periodCats.map(c => (
+              <button key={c} type="button" role="checkbox" aria-checked={filter.includes(c)}
+                className={filter.includes(c) ? 'sel' : ''} onClick={() => toggleCat(c)}>
+                <i className="dot" style={{ background: catColor(c, colors) }} />{c}<span>{filter.includes(c) ? '✓' : ''}</span>
+              </button>
+            ))}
+            <div className="acts">
+              <button type="button" onClick={() => setFilter([])}>Clear</button>
+              <button type="button" className="btn sm" onClick={() => setFilterOpen(false)}>Done</button>
+            </div>
+          </div>
+        )}
+      </div>
+      {recent.length === 0 && (filter.length
+        ? <p className="mid">No entries match this filter. <button className="link" onClick={() => setFilter([])}>Clear filter</button></p>
+        : <p className="mid">Tap + to add your first entry.</p>)}
       {recent.map(e => (
         <div className="entry" key={e.id + e.date}>
           <b>{e.date.slice(5).replace('-', '/')}</b>
