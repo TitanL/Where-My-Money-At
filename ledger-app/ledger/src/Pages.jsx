@@ -1,11 +1,14 @@
+// Pages.jsx: the smaller screens (Savings Goal, Settings, Account).
 import { useState } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { catColor } from './lib';
 
+// Settings live in one document per user: users/{uid}/meta/settings
 const settingsRef = user => doc(db, 'users', user.uid, 'meta', 'settings');
 
+// Savings Goal screen: edit the monthly goal
 export function Goal({ user, settings }) {
   const [v, setV] = useState(settings.savingsGoal ?? 0), [ok, setOk] = useState(false);
   const save = async () => { await setDoc(settingsRef(user), { savingsGoal: Number(v) || 0 }, { merge: true }); setOk(true); };
@@ -19,10 +22,14 @@ export function Goal({ user, settings }) {
 }
 
 
+// Preset muted colors offered for new categories
 const SWATCHES = ['#6fa66b', '#b5835a', '#d4706a', '#8e84c9', '#5f8fa3', '#c9955a', '#7aa8a0', '#d99a36', '#a0693d', '#b87a9a', '#8a9a5b', '#a08f7d'];
+// Settings screen: category list with colors, and a form to add categories
 export function Settings({ user, categories, colors }) {
   const [name, setName] = useState(''), [color, setColor] = useState(SWATCHES[0]);
+  // Merge changes into the settings document
   const save = data => setDoc(settingsRef(user), data, { merge: true });
+  // Add a new category with the chosen color (ignores blanks and duplicates)
   const add = () => {
     const t = name.trim();
     if (t && !categories.includes(t)) save({ categories: [...categories, t], categoryColors: { [t]: color } });
@@ -31,6 +38,7 @@ export function Settings({ user, categories, colors }) {
   return <>
     <h1 className="title">Settings</h1>
     <h3>Categories</h3>
+    {/* Existing categories: color dot, name, remove button */}
     <div className="chips">
       {categories.map(c => (
         <span className="chip" key={c}>
@@ -40,6 +48,7 @@ export function Settings({ user, categories, colors }) {
         </span>
       ))}
     </div>
+    {/* New category form: name, color swatches and a custom color picker */}
     <h3>New category</h3>
     <input className="pill-input" placeholder="Category name" value={name} onChange={e => setName(e.target.value)} />
     <div className="swatches" role="radiogroup" aria-label="Category color">
@@ -53,6 +62,7 @@ export function Settings({ user, categories, colors }) {
   </>;
 }
 
+// Account screen: email, password reset and log out
 export function Account({ user }) {
   const [sent, setSent] = useState(false);
   return <>

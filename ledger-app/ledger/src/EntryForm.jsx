@@ -1,11 +1,14 @@
+// EntryForm.jsx: add / edit entry form, with the date calendar, recurrence menu and receipt photo.
 import { useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { pad, today, freqLabel } from './lib';
 
+// Weekday headers for the calendar
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // Shrink a photo to a small JPEG data URL (< ~260 KB) so it fits in a Firestore document (1 MiB limit).
+// Receipt photos are stored inside the Firestore document, so they are resized first
 async function shrink(file) {
   const bmp = await createImageBitmap(file);
   for (const max of [1200, 900, 700, 500]) {
@@ -18,12 +21,16 @@ async function shrink(file) {
   throw new Error('That photo is too large to store. Try a smaller image.');
 }
 
+// Popup calendar for picking a date (value and onPick use "YYYY-MM-DD")
 function Calendar({ value, onPick }) {
+  // Month being viewed (starts on the selected date)
   const [y0, m0] = value.split('-').map(Number);
   const [[y, m], setV] = useState([y0, m0 - 1]);
+  // Blank cells before day 1 so it lines up under the right weekday
   const first = new Date(y, m, 1).getDay(), dim = new Date(y, m + 1, 0).getDate();
   const cells = [...Array(first).fill(null), ...Array.from({ length: dim }, (_, i) => i + 1)];
   const iso = d => `${y}-${pad(m + 1)}-${pad(d)}`;
+  // Move the calendar forward / back by k months
   const shift = k => setV(([yy, mm]) => { const d = new Date(yy, mm + k, 1); return [d.getFullYear(), d.getMonth()]; });
   return (
     <div className="menu cal">
@@ -43,6 +50,7 @@ function Calendar({ value, onPick }) {
   );
 }
 
+// Themed day-of-week dropdown (0 = Sunday), used for weekly / every-2-weeks entries
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function DayDropdown({ value, onChange }) {
@@ -65,10 +73,12 @@ function DayDropdown({ value, onChange }) {
   );
 }
 
+// Recurrence popup: how often, plus the weekday (weekly) or day of month (monthly)
 function RecMenu({ value, onDone, onCancel }) {
   const [freq, setFreq] = useState(value.freq || 'none'), [day, setDay] = useState(value.day ?? '');
   const [weekday, setWeekday] = useState(value.weekday ?? null);
   const opts = [['weekly', 'Every week'], ['biweekly', 'Every 2 weeks'], ['monthly', 'Monthly'], ['none', 'None']];
+  // Weekly and every-2-weeks share the weekday dropdown
   const weekly = freq === 'weekly' || freq === 'biweekly';
   return (
     <div className="menu rec">
@@ -90,15 +100,20 @@ function RecMenu({ value, onDone, onCancel }) {
   );
 }
 
+// The form itself. tx = {} for a new entry, or the existing transaction when editing.
 export default function EntryForm({ user, tx, categories, onClose }) {
+  // Form fields
   const [f, setF] = useState({
     title: tx.title || '', category: tx.category || '', amount: tx.amount != null ? String(tx.amount) : '',
     type: tx.type || 'expense', date: tx.date || today(), notes: tx.notes || '', photo: tx.photo || '',
     recurrence: { freq: 'none', day: null, ...tx.recurrence },
   });
+  // Which popup is open, saving state and error message
   const [cal, setCal] = useState(false), [rec, setRec] = useState(false);
   const [busy, setBusy] = useState(false), [err, setErr] = useState('');
+  // Update one form field
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
+  // Receipt photo chosen: shrink it and keep it on the form until saved
   const pick = async e => {
     const file = e.target.files[0]; if (!file) return;
     setErr('');
@@ -106,6 +121,7 @@ export default function EntryForm({ user, tx, categories, onClose }) {
     e.target.value = '';
   };
 
+  // Validate, then create or update the transaction in Firestore
   async function submit() {
     const amount = parseFloat(f.amount);
     if (!f.title.trim() || !(amount > 0) || !f.category) return setErr('Add a title, a category and an amount above 0.');
@@ -117,37 +133,48 @@ export default function EntryForm({ user, tx, categories, onClose }) {
       onClose();
     } catch (e) { setErr(e.message); setBusy(false); }
   }
+  // Delete the entry after confirming
   const remove = async () => { if (confirm('Delete this entry?')) { await deleteDoc(doc(db, 'users', user.uid, 'transactions', tx.id)); onClose(); } };
 
   return (
     <div className="overlay"><div className="sheet">
+      {/* Title */}
       <input className="ttl" placeholder="Title" value={f.title} onChange={e => set('title', e.target.value)} />
+      {/* Category (list comes from Settings) */}
       <label className="frow">Category
         <select className="pill-input" value={f.category} onChange={e => set('category', e.target.value)}>
           <option value="" />{categories.map(c => <option key={c}>{c}</option>)}
         </select>
       </label>
+      {/* Amount */}
       <label className="frow">Amount
         <input className="pill-input" inputMode="decimal" placeholder="$" value={f.amount} onChange={e => set('amount', e.target.value)} />
       </label>
+      {/* Expense / Income toggle */}
       <div className="toggle">
         <button type="button" className={f.type === 'expense' ? 'on exp' : ''} onClick={() => set('type', 'expense')}>Expense</button>
         <button type="button" className={f.type === 'income' ? 'on inc' : ''} onClick={() => set('type', 'income')}>Income</button>
       </div>
+      {/* Date field with popup calendar */}
       <div className="anchor">
         <button type="button" className="pill-input wide" onClick={() => { setCal(!cal); setRec(false); }}>{f.date} <span>📅</span></button>
         {cal && <Calendar value={f.date} onPick={d => { set('date', d); setCal(false); }} />}
       </div>
+      {/* Recurrence field with popup menu */}
       <div className="frow anchor">Recurrence
         <button type="button" className="pill-input" onClick={() => { setRec(!rec); setCal(false); }}>{f.recurrence.freq === 'none' ? 'None' : freqLabel({ ...f, recurrence: f.recurrence })}</button>
         {rec && <RecMenu value={f.recurrence} onCancel={() => setRec(false)} onDone={r => { set('recurrence', r); setRec(false); }} />}
       </div>
+      {/* Notes and receipt photo attach button */}
       <div className="pill-input wide notes">
         <input placeholder="Notes:" value={f.notes} onChange={e => set('notes', e.target.value)} />
         <label aria-label="Attach receipt photo">📷<input type="file" accept="image/*" hidden onChange={pick} /></label>
       </div>
+      {/* Receipt preview */}
       {f.photo && <div className="receipt"><img src={f.photo} alt="Receipt" /><button type="button" onClick={() => set('photo', '')}>Remove photo</button></div>}
+      {/* Error message */}
       {err && <p className="err">{err}</p>}
+      {/* Delete (existing entries only), Cancel and Add / Save */}
       <div className="acts">
         {tx.id ? <button type="button" onClick={remove}>Delete</button> : <span />}
         <button type="button" onClick={onClose}>Cancel</button>
