@@ -71,7 +71,7 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
     <div className="stats">
       <div><span>Income</span><b className="mus">{money(income)}</b></div>
       <div><span>Expenses</span><b className="red">{money(expense)}</b></div>
-      <div><span>Savings Rate</span><b className="mid">{rate.toFixed(1)}%</b></div>
+      <div><span>Save Rate</span><b className="mid">{rate.toFixed(1)}%</b></div>
     </div>
 
     {/* Savings goal progress bar (monthly view only) */}

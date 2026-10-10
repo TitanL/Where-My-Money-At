@@ -23,7 +23,7 @@ export function Goal({ user, settings }) {
 
 
 // Preset muted colors offered for new categories
-const SWATCHES = ['#6fa66b', '#b5835a', '#d4706a', '#8e84c9', '#5f8fa3', '#c9955a', '#7aa8a0', '#d99a36', '#a0693d', '#b87a9a', '#8a9a5b', '#a08f7d'];
+const SWATCHES = ['#d4706a', '#8e84c9', '#5f8fa3', '#d99a36', '#a0693d'];
 // Settings screen: category list with colors, and a form to add categories
 export function Settings({ user, categories, colors }) {
   const [name, setName] = useState(''), [color, setColor] = useState(SWATCHES[0]);
