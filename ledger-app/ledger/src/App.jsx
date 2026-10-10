@@ -25,7 +25,12 @@ export default function App() {
   const [view, setView] = useState('home'), [menu, setMenu] = useState(false), [editing, setEditing] = useState(null);
 
   // Track login state
-  useEffect(() => onAuthStateChanged(auth, setUser), []);
+  useEffect(() => onAuthStateChanged(auth, u => {
+    setUser(u);
+    setView('home');     // always land on the dashboard after logging in or out
+    setMenu(false);      // close the sidebar
+    setEditing(null);    // close any open entry form
+  }), []);
   // While logged in, live-sync transactions and settings from Firestore; unsubscribe on logout
   useEffect(() => {
     if (!user) return;
