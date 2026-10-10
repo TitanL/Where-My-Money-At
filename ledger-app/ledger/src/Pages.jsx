@@ -52,7 +52,7 @@ export function Settings({ user, categories, colors }) {
     </div>
     {/* New category form: name, color swatches and a custom color picker */}
     <h3>New category</h3>
-    <input className="pill-input" placeholder="Category name" value={name} onChange={e => setName(e.target.value)} />
+    <input className="pill-input field" placeholder="Category name" value={name} onChange={e => setName(e.target.value)} />
     <div className="swatches" role="radiogroup" aria-label="Category color">
       {SWATCHES.map(s => (
         <button key={s} type="button" role="radio" aria-checked={color === s} aria-label={s}

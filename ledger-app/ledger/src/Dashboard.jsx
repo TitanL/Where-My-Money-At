@@ -11,6 +11,8 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   const n = new Date();
   const [ym, setYm] = useState([n.getFullYear(), n.getMonth()]);
   const [all, setAll] = useState(false);
+  // the period (month or All Time) whose full entry list is open
+  const [expanded, setExpanded] = useState(null); 
   // Date range for the current view
   const [from, to] = all ? ['0000-01-01', today()] : monthRange(...ym);
   // Transactions in range, with recurring entries expanded into each occurrence
@@ -35,8 +37,10 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
     : [];
   // Largest category gets the full-width bar
   const max = byCat[0]?.[1] || 1;
-  // Newest 25 entries
-  const recent = [...es].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 25);
+  // Newest first. Only the first 25 show until "Show more" is tapped for this period.
+  const sorted = [...es].sort((a, b) => b.date.localeCompare(a.date));
+  const showAll = expanded === from + to;
+  const recent = showAll ? sorted : sorted.slice(0, 25);
   // Move to the previous / next month
   const shift = k => setYm(([y, m]) => { const d = new Date(y, m + k, 1); return [d.getFullYear(), d.getMonth()]; });
 
@@ -104,6 +108,11 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
           <button className="edit" aria-label={`Edit ${e.title}`} onClick={() => onEdit(e)}>✎</button>
         </div>
       ))}
+      {sorted.length > 25 && (
+        <button className="link more" onClick={() => setExpanded(showAll ? null : from + to)}>
+          {showAll ? 'Show less' : `Show more (${sorted.length - 25})`}
+        </button>
+      )}
     </details>
   </>;
 }

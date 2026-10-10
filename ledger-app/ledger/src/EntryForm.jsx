@@ -173,8 +173,8 @@ export default function EntryForm({ user, tx, categories, onClose }) {
       {err && <p className="err">{err}</p>}
       {/* Delete (existing entries only), Cancel and Add / Save */}
       <div className="acts">
-        {tx.id ? <button type="button" onClick={remove}>Delete</button> : <span />}
-        <button type="button" onClick={onClose}>Cancel</button>
+        {tx.id && <button type="button" className="delete" onClick={remove}>Delete</button>}
+        <button type="button" className="cancel" onClick={onClose}>Cancel</button>
         <button type="button" className="btn" disabled={busy} onClick={submit}>{busy ? 'Saving…' : tx.id ? 'Save' : 'Add'}</button>
       </div>
     </div></div>
