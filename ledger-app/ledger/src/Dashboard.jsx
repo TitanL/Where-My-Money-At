@@ -4,7 +4,7 @@ import { expand, monthRange, money, signed, catColor, today } from './lib';
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const C = 2 * Math.PI * 80;
 
-export default function Dashboard({ txs, goal, onEdit }) {
+export default function Dashboard({ txs, goal, onEdit, colors }) {
   const n = new Date();
   const [ym, setYm] = useState([n.getFullYear(), n.getMonth()]);
   const [all, setAll] = useState(false);
@@ -53,7 +53,7 @@ export default function Dashboard({ txs, goal, onEdit }) {
     <details open><summary>Spending by Category</summary>
       {byCat.length === 0 && <p className="mid">No expenses in this period yet.</p>}
       {byCat.map(([c, v]) => (
-        <div className="cat" key={c} title={money(v)}><span>{c}</span><i style={{ width: `${(v / max) * 100}%`, background: catColor(c) }} /></div>
+        <div className="cat" key={c} title={money(v)}><span>{c}</span><i style={{ width: `${(v / max) * 100}%`, background: catColor(c, colors) }} /></div>
       ))}
     </details>
 
@@ -62,7 +62,7 @@ export default function Dashboard({ txs, goal, onEdit }) {
       {recent.map(e => (
         <div className="entry" key={e.id + e.date}>
           <b>{e.date.slice(5).replace('-', '/')}</b>
-          <div><b>{e.title}</b><small style={{ color: catColor(e.category) }}>{e.category}</small></div>
+          <div><b>{e.title}</b><small style={{ color: catColor(e.category, colors) }}>{e.category}</small></div>
           <b className={e.type === 'income' ? 'mus' : 'red'}>{signed(e)}</b>
           <button className="edit" aria-label={`Edit ${e.title}`} onClick={() => onEdit(e)}>✎</button>
         </div>

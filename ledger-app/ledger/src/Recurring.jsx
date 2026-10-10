@@ -1,6 +1,6 @@
 import { catColor, freqLabel, isRec, money, perMonth } from './lib';
 
-export default function Recurring({ txs, onEdit }) {
+export default function Recurring({ txs, onEdit, colors }) {
   const rec = txs.filter(isRec);
   const bills = rec.filter(t => t.type === 'expense'), inc = rec.filter(t => t.type === 'income');
   const total = l => l.reduce((a, t) => a + perMonth(t), 0);
@@ -9,7 +9,7 @@ export default function Recurring({ txs, onEdit }) {
   <div className="entry nodate" key={t.id}>
     <div>
       <b>{t.title}</b>
-      <small style={{ color: catColor(t.category) }}>{t.category}</small>
+      <small style={{ color: catColor(t.category, colors) }}>{t.category}</small>
       <small className="mid">{freqLabel(t)}</small>
     </div>
     <b className={cls}>{sign}{money(t.amount)}</b>

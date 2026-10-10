@@ -62,7 +62,16 @@ details summary::after{content:' ▼'}
 .rec>button{padding:3px 14px;border-radius:99px;color:var(--tan)}
 .rec label{font-size:.9rem}.rec label input{width:64px;border:0;border-radius:99px;padding:3px 10px;text-align:center;background:var(--tan);color:var(--dark)}
 .acts{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto}.acts .btn{margin:0}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.chips button{background:#dcb48f;border-radius:99px;padding:4px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px}
+.chip{display:flex;align-items:center;gap:8px;background:#dcb48f;border-radius:99px;padding:5px 12px;font-weight:600}
+.chip button{color:var(--mid);padding:0 0 0 4px}
+.dot{display:block;width:14px;height:14px;border-radius:50%;flex:none}
+.swatches{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0 4px}
+.swatches button{width:30px;height:30px;border-radius:50%}
+.swatches button.on{outline:3px solid var(--dark);outline-offset:2px}
+.colorpick{width:30px;height:30px;padding:0;border:0;background:none;border-radius:50%;cursor:pointer}
+.colorpick::-webkit-color-swatch-wrapper{padding:0}
+.colorpick::-webkit-color-swatch,.colorpick::-moz-color-swatch{border:0;border-radius:50%}
 .scroll{overflow-x:auto;margin:12px 0}table{border-collapse:collapse;width:100%;font-size:.85rem}
 td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb48f;border:0;border-radius:8px;padding:3px}
 @media (prefers-reduced-motion:no-preference){.track i,.donut circle+circle{transition:all .4s}}

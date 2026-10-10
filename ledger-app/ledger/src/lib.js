@@ -6,7 +6,7 @@ export const monthRange = (y, m) => [`${y}-${pad(m + 1)}-01`, ymd(new Date(Date.
 
 export const DEFAULT_CATS = ['Groceries', 'Housing', 'Subscriptions', 'Furniture', 'Transport', 'Dining', 'Health', 'Income', 'Other'];
 const COLORS = { Groceries: '#6fa66b', Housing: '#b5835a', Subscriptions: '#d4706a', Furniture: '#8e84c9', Transport: '#5f8fa3', Dining: '#c9955a', Health: '#7aa8a0', Income: '#d99a36' };
-export const catColor = c => COLORS[c] || '#a08f7d';
+export const catColor = (c, map = {}) => map[c] || COLORS[c] || '#a08f7d';
 
 export const money = n => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 export const signed = t => (t.type === 'income' ? '+' : '-') + money(t.amount);

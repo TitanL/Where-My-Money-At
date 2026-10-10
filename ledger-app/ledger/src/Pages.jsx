@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { auth, db } from './firebase';
+import { catColor } from './lib';
 
 const settingsRef = user => doc(db, 'users', user.uid, 'meta', 'settings');
 
@@ -17,15 +18,38 @@ export function Goal({ user, settings }) {
   </>;
 }
 
-export function Settings({ user, categories }) {
-  const [name, setName] = useState('');
-  const save = list => setDoc(settingsRef(user), { categories: list }, { merge: true });
+
+const SWATCHES = ['#6fa66b', '#b5835a', '#d4706a', '#8e84c9', '#5f8fa3', '#c9955a', '#7aa8a0', '#d99a36', '#a0693d', '#b87a9a', '#8a9a5b', '#a08f7d'];
+export function Settings({ user, categories, colors }) {
+  const [name, setName] = useState(''), [color, setColor] = useState(SWATCHES[0]);
+  const save = data => setDoc(settingsRef(user), data, { merge: true });
+  const add = () => {
+    const t = name.trim();
+    if (t && !categories.includes(t)) save({ categories: [...categories, t], categoryColors: { [t]: color } });
+    setName('');
+  };
   return <>
     <h1 className="title">Settings</h1>
     <h3>Categories</h3>
-    <div className="chips">{categories.map(c => <button key={c} onClick={() => save(categories.filter(x => x !== c))} aria-label={`Remove ${c}`}>{c} ✕</button>)}</div>
-    <input className="pill-input" placeholder="New category" value={name} onChange={e => setName(e.target.value)} />
-    <button className="btn" onClick={() => { const t = name.trim(); if (t && !categories.includes(t)) save([...categories, t]); setName(''); }}>Add category</button>
+    <div className="chips">
+      {categories.map(c => (
+        <span className="chip" key={c}>
+          <i className="dot" style={{ background: catColor(c, colors) }} />
+          {c}
+          <button onClick={() => save({ categories: categories.filter(x => x !== c) })} aria-label={`Remove ${c}`}>✕</button>
+        </span>
+      ))}
+    </div>
+    <h3>New category</h3>
+    <input className="pill-input" placeholder="Category name" value={name} onChange={e => setName(e.target.value)} />
+    <div className="swatches" role="radiogroup" aria-label="Category color">
+      {SWATCHES.map(s => (
+        <button key={s} type="button" role="radio" aria-checked={color === s} aria-label={s}
+          className={color === s ? 'on' : ''} style={{ background: s }} onClick={() => setColor(s)} />
+      ))}
+      <input type="color" className="colorpick" value={color} onChange={e => setColor(e.target.value)} aria-label="Custom color" />
+    </div>
+    <button className="btn" onClick={add}>Add category</button>
   </>;
 }
 

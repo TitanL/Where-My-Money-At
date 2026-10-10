@@ -32,6 +32,7 @@ export default function App() {
   const edit = t => setEditing(txs.find(x => x.id === (t._tid || t.id)) || {});
   const go = v => { setView(v); setMenu(false); };
   const cats = settings.categories?.length ? settings.categories : DEFAULT_CATS;
+const colors = settings.categoryColors || {};
 
   return (
     <div className="app">
@@ -43,11 +44,11 @@ export default function App() {
           {NAV.map(([k, l]) => <button key={k} onClick={() => go(k)}>{l}</button>)}
         </nav>
       </>}
-      {view === 'home' && <Dashboard txs={txs} goal={settings.savingsGoal} onEdit={edit} />}
-      {view === 'recurring' && <Recurring txs={txs} onEdit={edit} />}
+      {view === 'home' && <Dashboard txs={txs} goal={settings.savingsGoal} onEdit={edit} colors={colors} />}
+      {view === 'recurring' && <Recurring txs={txs} onEdit={edit} colors={colors} />}
       {view === 'goal' && <Goal user={user} settings={settings} />}
       {view === 'import' && <Import user={user} categories={cats} onDone={() => go('home')} />}
-      {view === 'settings' && <Settings user={user} categories={cats} />}
+      {view === 'settings' && <Settings user={user} categories={cats} colors={colors} />}
       {view === 'account' && <Account user={user} />}
       {(view === 'home' || view === 'recurring') && <button className="fab" aria-label="Add entry" onClick={() => setEditing({})}>+</button>}
       {editing && <EntryForm user={user} tx={editing} categories={cats} onClose={() => setEditing(null)} />}
