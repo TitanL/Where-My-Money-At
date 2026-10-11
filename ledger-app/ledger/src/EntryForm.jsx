@@ -1,5 +1,5 @@
 // EntryForm.jsx: add / edit entry form, with the date calendar, recurrence menu and receipt photo.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { pad, today, freqLabel } from './lib';
@@ -108,6 +108,12 @@ export default function EntryForm({ user, tx, categories, onClose }) {
   // Which popup is open, saving state and error message
   const [cal, setCal] = useState(false), [rec, setRec] = useState(false);
   const [busy, setBusy] = useState(false), [err, setErr] = useState('');
+  // Lock the page behind the form so only the form itself scrolls
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
   // Update one form field
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
   // Receipt photo chosen: shrink it and keep it on the form until saved
@@ -136,7 +142,7 @@ export default function EntryForm({ user, tx, categories, onClose }) {
   return (
     <div className="overlay"><div className="sheet">
       {/* Title */}
-      <input className="ttl" placeholder="Title" value={f.title} onChange={e => set('title', e.target.value)} />
+      <input className="ttl" placeholder="Add Title" value={f.title} onChange={e => set('title', e.target.value)} />
       {/* Category (list comes from Settings) */}
       <label className="frow">Category
         <select className="pill-input" value={f.category} onChange={e => set('category', e.target.value)}>
