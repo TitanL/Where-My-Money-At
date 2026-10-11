@@ -105,7 +105,7 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
     </details>
 
     {/* Recent entries with edit buttons */}
-    <details open><summary>Recent Entries</summary>
+    <details open className="entries"><summary>Recent Entries</summary>
       {/* Category filter */}
       <div className="filterbar" onKeyDown={e => e.key === 'Escape' && setFilterOpen(false)}>
         <button className={`filter-btn${filter.length ? ' active' : ''}`} aria-expanded={filterOpen} onClick={() => setFilterOpen(!filterOpen)}>

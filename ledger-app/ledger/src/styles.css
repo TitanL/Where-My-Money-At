@@ -120,8 +120,14 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb
 .filterbar{position:relative;display:flex;justify-content:flex-end;margin:0 0 4px}
 .filter-btn{display:flex;align-items:center;gap:6px;padding:4px 14px;border:2px solid var(--mid);border-radius:99px;color:var(--mid);font-weight:700;font-size:.9rem}
 .filter-btn.active{background:var(--mid);color:var(--tan)}
-.filter-menu{display:flex;flex-direction:column;gap:2px;width:min(260px,100%);max-height:320px;overflow:auto;color:var(--tan)}
+.filter-menu{display:flex;flex-direction:column;gap:2px;width:260px;max-width:calc(100vw - 40px);max-height:320px;overflow:auto;color:var(--tan)}
 .filter-menu>button{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:99px;color:var(--tan);text-align:left}
 .filter-menu>button span{margin-left:auto}
 .filter-menu>button.sel{background:var(--mid)}
 .filter-menu .acts{margin-top:8px}
+
+/* ── Recent Entries header: filter button on the same line as the title ── */
+.entries{position:relative;margin-top:14px}
+.entries summary{margin:0 0 8px;height:2rem;line-height:2rem}
+.entries .filterbar{position:absolute;top:0;right:0;height:2rem;margin:0}
+.entries .filter-btn{height:100%}
