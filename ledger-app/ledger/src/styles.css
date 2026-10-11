@@ -1,6 +1,6 @@
 /* Ledger styles: warm tan / brown / mustard palette. Colors are CSS variables defined here and used everywhere below. */
-:root{--tan:#e8c5a5;--dark:#4a2410;--mus:#d99a36;--red:#96504a;--mid:#a0693d;--line:#d2ab88}
-
+:root{--tan:#e8c5a5;--dark:#492310;--mid:#9d673a;--soft:#ae8356;--red:#955049;--mus:#d99937;--on-mid:#e8c5a5;
+--line:color-mix(in srgb,var(--tan) 86%,var(--dark));--tan2:color-mix(in srgb,var(--tan) 92%,var(--dark));--tan3:color-mix(in srgb,var(--tan) 50%,white)}
 /* ── Base ── */
 *{box-sizing:border-box}
 body{margin:0;background:var(--tan);color:var(--dark);font-family:'Noto Sans',system-ui,sans-serif}
@@ -68,10 +68,10 @@ details summary::after{content:' ▼'}
 .overlay{position:fixed;inset:0;background:#0007;z-index:30;display:flex;justify-content:center;overflow:hidden}
 .sheet{background:var(--dark);color:var(--tan);width:min(440px,100%);height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:24px 24px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
 .sheet>*{flex-shrink:0}.frow{display:flex;justify-content:space-between;align-items:center;gap:14px;font-size:1.5rem;font-weight:800}
-.sheet .ttl{background:none;border:0;font-size:2.2rem;font-weight:800;color:#a0693d;padding:0}
-.sheet .ttl::placeholder{color:#a0693d}.sheet .ttl:not(:placeholder-shown){color:var(--tan)}
+.sheet .ttl{background:none;border:0;font-size:2.2rem;font-weight:800;color:var(--mid);padding:0}
+.sheet .ttl::placeholder{color:var(--mid)}.sheet .ttl:not(:placeholder-shown){color:var(--tan)}
 .frow .pill-input{width:58%;margin:0;font-size:1rem;font-weight:400}
-.dk{color:var(--dark);font-size:1rem}.dk .pill-input{background:#dcb48f}
+.dk{color:var(--dark);font-size:1rem}.dk .pill-input{background:var(--tan2)}
 .toggle{display:grid;grid-template-columns:1fr 1fr;font-size:1.2rem}.toggle button{padding:8px;border-radius:99px;color:var(--tan)}
 .toggle .exp{background:var(--red)}.toggle .inc{background:var(--mus);color:var(--dark)}
 .sheet .wide{width:100%;margin:0;display:flex;justify-content:space-between}
@@ -80,17 +80,17 @@ details summary::after{content:' ▼'}
 
 /* ── Popup menus: calendar & recurrence ── */
 .menu{position:absolute;right:0;top:100%;z-index:5;background:var(--dark);border:1px solid var(--mid);border-radius:22px;padding:16px;width:min(320px,100%);box-shadow:0 8px 24px #0008;font-size:1rem;font-weight:700}
-.cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-top:10px;color:#a0693d}
+.cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-top:10px;color:var(--mid)}
 .cal .grid button{border-radius:50%;aspect-ratio:1;color:var(--tan)}.cal .sel,.rec .sel{background:var(--mid);color:var(--tan)}
-.cal .small{font-size:.7rem;color:#a0693d}.cal .row button{color:#a0693d}
-.rec{display:flex;flex-direction:column;align-items:center;gap:8px}.rec h4{margin:0;color:#a0693d}
+.cal .small{font-size:.7rem;color:var(--mid)}.cal .row button{color:var(--mid)}
+.rec{display:flex;flex-direction:column;align-items:center;gap:8px}.rec h4{margin:0;color:var(--mid)}
 .rec>button{padding:3px 14px;border-radius:99px;color:var(--tan)}
 .rec label{font-size:.9rem}.rec label input{width:64px;border:0;border-radius:99px;padding:3px 10px;text-align:center;background:var(--tan);color:var(--dark)}
 .acts{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto}.acts .btn{margin:0}
 
 /* ── Settings: category chips & color picker ── */
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px}
-.chip{display:flex;align-items:center;gap:8px;background:#dcb48f;border-radius:99px;padding:5px 12px;font-weight:600}
+.chip{display:flex;align-items:center;gap:8px;background:var(--tan2);border-radius:99px;padding:5px 12px;font-weight:600}
 .chip button{color:var(--mid);padding:0 0 0 4px}
 .dot{display:block;width:14px;height:14px;border-radius:50%;flex:none}
 .swatches{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0 4px}
@@ -99,7 +99,7 @@ details summary::after{content:' ▼'}
 
 /* ── Import table ── */
 .scroll{overflow-x:auto;margin:12px 0}table{border-collapse:collapse;width:100%;font-size:.85rem}
-td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb48f;border:0;border-radius:8px;padding:3px}
+td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:var(--tan2);border:0;border-radius:8px;padding:3px}
 
 /* ── Motion ── */
 @media (prefers-reduced-motion:no-preference){.track i,.donut circle+circle{transition:all .4s}}
@@ -122,7 +122,7 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb
 .rec label input::placeholder{color:var(--mid);opacity:1}
 
 .field{border:2px solid var(--mid);transition:border-color .15s,box-shadow .15s}
-.field:focus,.field:focus-visible{outline:none;border-color:var(--mus);box-shadow:0 0 0 3px #d99a3659}
+.field:focus,.field:focus-visible{outline:none;border-color:var(--mus);box-shadow:0 0 0 3px color-mix(in srgb, var(--mus) 35%, transparent)}
 .link.more{margin:14px auto;font-weight:700}
 
 /* ── Button highlights ── */
@@ -160,4 +160,14 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb
 /* ── Savings goal field ── */
 .money-field{position:relative;display:block;margin:8px 0}
 .money-field span{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-weight:800;font-size:1.3rem;color:var(--mid);pointer-events:none}
-.money-field .pill-input{margin:0;padding-left:38px;background:#f3dfc9;font-size:1.3rem;font-weight:700}
+.money-field .pill-input{margin:0;padding-left:38px;background:var(--tan3);font-size:1.3rem;font-weight:700}
+
+/* ── Themes ── */
+.stats .mid{color:var(--soft)}
+.edit{color:var(--soft)}
+.pills .on,.btn,.cal .sel,.rec .sel,.filter-btn.active,.dd-list button:hover,.dd-list .sel,.filter-menu>button.sel{color:var(--on-mid)}
+.btn.dark{color:var(--tan)}
+.themes{display:flex;gap:18px;margin:10px 0 24px}
+.themes button{display:grid;justify-items:center;gap:6px;font-weight:700;font-size:.85rem}
+.themes i{display:block;width:44px;height:44px;border-radius:50%;border:5px solid}
+.themes .on i{outline:3px solid var(--dark);outline-offset:3px}

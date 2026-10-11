@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { DEFAULT_CATS } from './lib';
+import { DEFAULT_CATS, applyTheme, savedTheme } from './lib';
 import Auth from './Auth';
 import Dashboard from './Dashboard';
 import Recurring from './Recurring';
@@ -23,6 +23,8 @@ export default function App() {
   const [settings, setSettings] = useState({ savingsGoal: 500, categories: DEFAULT_CATS });
   // view = current screen, menu = sidebar open, editing = entry being edited ({} = new entry, null = form closed)
   const [view, setView] = useState('home'), [menu, setMenu] = useState(false), [editing, setEditing] = useState(null);
+  // current theme key: coffee, matcha or ube
+  const [theme, setTheme] = useState(savedTheme); 
 
   // Track login state
   useEffect(() => onAuthStateChanged(auth, u => {
@@ -39,6 +41,11 @@ export default function App() {
     return () => { a(); b(); };
   }, [user]);
 
+  // Apply the theme whenever it changes
+  useEffect(() => { applyTheme(theme); }, [theme]);
+  // If the account has a saved theme (e.g. picked on another device), use it
+  useEffect(() => { if (settings.theme && settings.theme !== theme) setTheme(settings.theme); }, [settings.theme]);
+  
   // Loading screen, then login screen, before the app itself
   if (user === undefined) return <div className="app"><p>Loading…</p></div>;
   if (!user) return <Auth />;
@@ -69,7 +76,7 @@ export default function App() {
       {view === 'recurring' && <Recurring txs={txs} onEdit={edit} colors={colors} />}
       {view === 'goal' && <Goal user={user} settings={settings} />}
       {view === 'import' && <Import user={user} categories={cats} onDone={() => go('home')} />}
-      {view === 'settings' && <Settings user={user} categories={cats} colors={colors} />}
+      {view === 'settings' && <Settings user={user} categories={cats} colors={colors} theme={theme} onTheme={setTheme} />}
       {view === 'account' && <Account user={user} />}
       {/* Floating add button (dashboard and recurring screens only) */}
       {(view === 'home' || view === 'recurring') && <button className="fab" aria-label="Add entry" onClick={() => setEditing({})}>+</button>}

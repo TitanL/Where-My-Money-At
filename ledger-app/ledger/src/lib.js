@@ -61,3 +61,24 @@ export function expand(txs, from, to) {
   }
   return out;
 }
+
+// ── Themes ──
+// Slots follow the palettes top to bottom: dark (text, menus), mid (buttons, accents), soft (pencils, savings rate),
+// tan (page background), red (expenses), mus (income, donut). onMid = text color used on top of "mid" buttons.
+export const THEMES = {
+  coffee: { name: 'Coffee', dark: '#492310', mid: '#9d673a', soft: '#ae8356', tan: '#e8c5a5', red: '#955049', mus: '#d99937', onMid: '#e8c5a5' },
+  matcha: { name: 'Matcha', dark: '#44624a', mid: '#668b4a', soft: '#8ba888', tan: '#c0cfb2', red: '#c16c64', mus: '#648a60', onMid: '#c0cfb2' },
+  ube:    { name: 'Ube',    dark: '#692a9f', mid: '#9978bf', soft: '#cbbadd', tan: '#f5eff9', red: '#e0ca99', mus: '#bd96cf', onMid: '#f5eff9' },
+};
+
+// Theme remembered on this device (also saved to the account, see App.jsx)
+export const savedTheme = () => { try { return localStorage.getItem('theme') || 'coffee'; } catch { return 'coffee'; } };
+
+// Apply a theme by setting the CSS color variables, and remember it on this device
+export function applyTheme(key) {
+  const t = THEMES[key] || THEMES.coffee, root = document.documentElement.style;
+  Object.entries({ dark: t.dark, mid: t.mid, soft: t.soft, tan: t.tan, red: t.red, mus: t.mus, 'on-mid': t.onMid })
+    .forEach(([k, v]) => root.setProperty(`--${k}`, v));
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t.tan);
+  try { localStorage.setItem('theme', key); } catch { /* private mode: skip */ }
+}

@@ -1,5 +1,5 @@
 // Dashboard.jsx: main screen with totals, donut chart, savings goal, category bars and recent entries.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { expand, monthRange, money, signed, catColor, today } from './lib';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -20,6 +20,16 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   const [tip, setTip] = useState(null);
   // donut slice currently selected
   const [ring, setRing] = useState(null);
+  // Tapping anywhere outside a popup closes it: filter menu, selected donut slice, category bubble
+  useEffect(() => {
+    const close = e => {
+      if (!e.target.closest('.filterbar')) setFilterOpen(false);
+      if (!e.target.closest('.donut svg circle')) setRing(null);
+      if (!e.target.closest('.cat')) setTip(null);
+    };
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
+  }, []);
   // Date range for the current view
   const [from, to] = all ? ['0000-01-01', today()] : monthRange(...ym);
   // Transactions in range, with recurring entries expanded into each occurrence
