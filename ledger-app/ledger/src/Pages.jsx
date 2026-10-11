@@ -15,7 +15,10 @@ export function Goal({ user, settings }) {
   return <>
     <h1 className="title">Savings Goal</h1>
     <p>How much do you want to save each month?</p>
-    <input className="pill-input" inputMode="decimal" value={v} onChange={e => { setV(e.target.value); setOk(false); }} />
+    <label className="money-field">
+      <span>$</span>
+      <input className="pill-input field" inputMode="decimal" aria-label="Monthly savings goal" value={v} onChange={e => { setV(e.target.value); setOk(false); }} />
+    </label>
     <button className="btn" onClick={save}>Save goal</button>
     {ok && <p className="mid">Goal saved.</p>}
   </>;

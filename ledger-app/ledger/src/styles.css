@@ -156,3 +156,8 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:#dcb
 
 /* ── Donut: no square focus / tap highlight around the ring ── */
 .donut svg,.donut svg circle{outline:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+
+/* ── Savings goal field ── */
+.money-field{position:relative;display:block;margin:8px 0}
+.money-field span{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-weight:800;font-size:1.3rem;color:var(--mid);pointer-events:none}
+.money-field .pill-input{margin:0;padding-left:38px;background:#f3dfc9;font-size:1.3rem;font-weight:700}
