@@ -29,14 +29,12 @@ export default function Recurring({ txs, onEdit, colors }) {
     {/* Bills section and its total */}
     <h2>Recurring Bills</h2>
     <List items={bills} />
-    <b className="red sub">{sgn(total(bills))}</b>
     <h3 className="sub">Total Monthly Recurring Bills</h3>
-    <b className="red sub">-{money(total(bills))}</b>
+    <b className="red sub">{sgn(total(bills))}</b>
     {/* Income section and its total */}
     <h2>Income</h2>
     <List items={inc} />
-    <b className="mus sub">{sgn(total(inc))}</b>
     <h3 className="sub">Total Monthly Income</h3>
-    <b className="mus sub">+{money(total(inc))}</b>
+    <b className="mus sub">{sgn(total(inc))}</b>
   </>;
 }
