@@ -145,7 +145,7 @@ export default function EntryForm({ user, tx, categories, onClose }) {
       <input className="ttl" placeholder="Add Title" value={f.title} onChange={e => set('title', e.target.value)} />
       {/* Category (list comes from Settings) */}
       <label className="frow">Category
-        <select className="pill-input" value={f.category} onChange={e => set('category', e.target.value)}>
+        <select className="pill-input" value={f.category} onChange={e => { set('category', e.target.value); if (e.target.value === 'Income') set('type', 'income'); }}>
           <option value="" />{categories.map(c => <option key={c}>{c}</option>)}
         </select>
       </label>

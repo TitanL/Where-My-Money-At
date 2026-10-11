@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { DEFAULT_CATS, applyTheme, savedTheme } from './lib';
+import { DEFAULT_CATS, INCOME_CAT, applyTheme, savedTheme } from './lib';
 import Auth from './Auth';
 import Dashboard from './Dashboard';
 import Recurring from './Recurring';
@@ -55,7 +55,9 @@ export default function App() {
   // Switch screen and close the sidebar
   const go = v => { setView(v); setMenu(false); };
   // Category list (falls back to the defaults until the user customizes it)
-  const cats = settings.categories?.length ? settings.categories : DEFAULT_CATS;
+  const base = settings.categories?.length ? settings.categories : DEFAULT_CATS;
+  // the Income category is always present
+  const cats = base.includes(INCOME_CAT) ? base : [...base, INCOME_CAT];
   // Category colors chosen in Settings: { name: "#hex" }
   const colors = settings.categoryColors || {};
 
@@ -63,14 +65,12 @@ export default function App() {
     <div className="app">
       {/* Sidebar toggle */}
       <button className="burger" aria-label="Open menu" onClick={() => setMenu(true)}><i /><i /><i /></button>
-      {/* Sidebar menu */}
-      {menu && <>
-        <div className="scrim" onClick={() => setMenu(false)} />
-        <nav className="drawer">
-          <button className="burger" aria-label="Close menu" onClick={() => setMenu(false)}><i /><i /><i /></button>
-          {NAV.map(([k, l]) => <button key={k} onClick={() => go(k)}>{l}</button>)}
-        </nav>
-      </>}
+      {/* Sidebar menu (always mounted so it can slide in and out) */}
+      <div className={`scrim fade${menu ? ' open' : ''}`} onClick={() => setMenu(false)} />
+      <nav className={`drawer${menu ? ' open' : ''}`}>
+        <button className="burger" aria-label="Close menu" onClick={() => setMenu(false)}><i /><i /><i /></button>
+        {NAV.map(([k, l]) => <button key={k} onClick={() => go(k)}>{l}</button>)}
+      </nav>
       {/* Current screen */}
       {view === 'home' && <Dashboard txs={txs} goal={settings.savingsGoal} goalPct={settings.savingsGoalMode === 'percent' ? settings.savingsGoalPct : null} onEdit={edit} colors={colors} />}
       {view === 'recurring' && <Recurring txs={txs} onEdit={edit} colors={colors} />}

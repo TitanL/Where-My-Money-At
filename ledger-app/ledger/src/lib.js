@@ -82,3 +82,16 @@ export function applyTheme(key) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t.tan);
   try { localStorage.setItem('theme', key); } catch { /* private mode: skip */ }
 }
+
+// ── Income vs spending ──
+// Income is whatever is in the Income category. Everything else is spending: expenses add to it,
+// and money coming back in a spending category (like a payback) reduces it instead of raising income.
+export const INCOME_CAT = 'Income';
+export const isIncomeCat = c => c === INCOME_CAT;
+export const balanceEffect = e => (e.type === 'income' ? e.amount : -e.amount); // effect of one entry on your balance
+export const incomeTotal = es => es.filter(e => isIncomeCat(e.category)).reduce((a, e) => a + balanceEffect(e), 0);
+export const spendingTotal = es => -es.filter(e => !isIncomeCat(e.category)).reduce((a, e) => a + balanceEffect(e), 0);
+// Net spending per category, largest first (categories that net to zero or less are hidden)
+export const spendingByCategory = es => Object.entries(
+  es.filter(e => !isIncomeCat(e.category)).reduce((a, e) => (a[e.category] = (a[e.category] || 0) - balanceEffect(e), a), {})
+).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);

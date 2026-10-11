@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { doc, setDoc, writeBatch } from 'firebase/firestore';
 import { sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { catColor, THEMES, expand, monthRange, money } from './lib';
+import { catColor, THEMES, expand, monthRange, money, incomeTotal, balanceEffect, isIncomeCat } from './lib';
 
 // Settings live in one document per user: users/{uid}/meta/settings
 const settingsRef = user => doc(db, 'users', user.uid, 'meta', 'settings');
@@ -49,11 +49,11 @@ export function Goal({ user, settings, txs, categories, colors }) {
   // This month's income and expenses (same range as the dashboard's monthly view)
   const now = new Date(), [from, to] = monthRange(now.getFullYear(), now.getMonth());
   const es = expand(txs, from, to);
-  const income = es.filter(e => e.type === 'income').reduce((a, e) => a + e.amount, 0);
+  const income = incomeTotal(es);
   // Share of this month's income spent on the chosen categories
   const share = cats => {
     if (!(income > 0)) return '—';
-    const spent = es.filter(e => e.type === 'expense' && cats.includes(e.category)).reduce((a, e) => a + e.amount, 0);
+    const spent = -es.filter(e => cats.includes(e.category)).reduce((a, e) => a + balanceEffect(e), 0);    
     return `${Math.round((spent / income) * 1000) / 10}%`;
   };
 
@@ -121,7 +121,7 @@ export function Goal({ user, settings, txs, categories, colors }) {
 const SWATCHES = ['#d4706a', '#8e84c9', '#5f8fa3', '#d99a36', '#a0693d'];
 
 // Small popup for editing one category's name and color
-function CategoryEditor({ name, color, taken, onSave, onClose }) {
+function CategoryEditor({ name, color, taken, locked, onSave, onClose }) {
   const [n, setN] = useState(name), [c, setC] = useState(color), [custom, setCustom] = useState(null);
   const [err, setErr] = useState(''), [busy, setBusy] = useState(false);
   const choices = SWATCHES.includes(color) ? SWATCHES : [color, ...SWATCHES]; // keep the current color available
@@ -135,7 +135,8 @@ function CategoryEditor({ name, color, taken, onSave, onClose }) {
   return <>
     <div className="scrim" onClick={onClose} />
     <div className="pop" role="dialog" aria-label={`Edit ${name}`}>
-      <input className="pill-input field" value={n} onChange={e => setN(e.target.value)} autoFocus aria-label="Category name" />
+      <input className="pill-input field" value={n} onChange={e => setN(e.target.value)} readOnly={locked} autoFocus={!locked} aria-label="Category name" />
+      {locked && <small>The Income name can't be changed, but you can pick a new color.</small>}
       <div className="swatches" role="radiogroup" aria-label="Category color">
         {choices.map(s => (
           <button key={s} type="button" role="radio" aria-checked={c === s} aria-label={s}
@@ -199,8 +200,7 @@ export function Settings({ user, categories, colors, theme, onTheme, txs, settin
           <button type="button" className="chip-main" onClick={() => setEditing(c)} aria-label={`Edit ${c}`}>
             <i className="dot" style={{ background: catColor(c, colors) }} />{c}
           </button>
-          <button onClick={() => save({ categories: categories.filter(x => x !== c) })} aria-label={`Remove ${c}`}>✕</button>
-        </span>
+          {!isIncomeCat(c) && <button onClick={() => save({ categories: categories.filter(x => x !== c) })} aria-label={`Remove ${c}`}>✕</button>}        </span>
       ))}
     </div>
     {/* New category form: name, color swatches and a custom color picker */}
@@ -228,7 +228,7 @@ export function Settings({ user, categories, colors, theme, onTheme, txs, settin
       ))}
     </div>
     {editing && (
-      <CategoryEditor key={editing} name={editing} color={catColor(editing, colors)} taken={categories}
+      <CategoryEditor key={editing} name={editing} color={catColor(editing, colors)} taken={categories} locked={isIncomeCat(editing)}
         onClose={() => setEditing(null)}
         onSave={async (n, c) => { await saveEdit(editing, n, c); setEditing(null); }} />
     )}

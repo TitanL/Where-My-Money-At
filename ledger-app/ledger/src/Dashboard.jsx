@@ -1,6 +1,6 @@
 // Dashboard.jsx: main screen with totals, donut chart, savings goal, category bars and recent entries.
 import { useEffect, useState } from 'react';
-import { expand, monthRange, money, signed, catColor, today } from './lib';
+import { expand, monthRange, money, signed, catColor, today, incomeTotal, spendingTotal, spendingByCategory } from './lib';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 // Donut ring circumference (radius 80), used to draw the arc
@@ -39,21 +39,21 @@ export default function Dashboard({ txs, goal, goalPct, onEdit, colors }) {
   const filtered = filter.length ? es.filter(e => filter.includes(e.category)) : es;
   const toggleCat = c => setFilter(f => (f.includes(c) ? f.filter(x => x !== c) : [...f, c]));
   // ── Totals ──
-  const sum = t => es.filter(e => e.type === t).reduce((a, e) => a + e.amount, 0);
-  const income = sum('income'), expense = sum('expense'), net = income - expense;
+  const income = incomeTotal(es), expense = spendingTotal(es), net = income - expense;
   // Savings rate = net ÷ income
   const rate = income > 0 ? (net / income) * 100 : 0;
   // Goal in dollars: a percentage goal is worked out from the viewed month's income
   const goalAmt = goalPct != null ? (income * goalPct) / 100 : goal;
   const gp = goalAmt > 0 ? Math.min(1, Math.max(0, net) / goalAmt) : 0;
   // Expenses grouped by category, largest first
-  const byCat = Object.entries(es.filter(e => e.type === 'expense').reduce((a, e) => (a[e.category] = (a[e.category] || 0) + e.amount, a), {})).sort((a, b) => b[1] - a[1]);
+  const byCat = spendingByCategory(es);
   // Donut slices: one per spending category, then what's left in mustard.
   // The ring represents your income (or your spending, if you overspent).
-  const total = Math.max(income, expense);
+  const spent = byCat.reduce((a, [, v]) => a + v, 0); // total of the category slices
+  const total = Math.max(income, spent);
   let off = 0;
   const segs = total > 0
-    ? [...byCat.map(([c, v]) => [c, catColor(c, colors), v]), ['Left', 'var(--mus)', Math.max(0, net)]]
+    ? [...byCat.map(([c, v]) => [c, catColor(c, colors), v]), ['Left', 'var(--mus)', Math.max(0, total - spent)]]
         .filter(([, , v]) => v > 0)
         .map(([label, color, v]) => { const len = (v / total) * C; const s = { label, color, len, off, v }; off += len; return s; })
     : [];
