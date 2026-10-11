@@ -16,6 +16,10 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   // categories ticked in the filter (empty = show everything)
   const [filter, setFilter] = useState([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  // category whose speech bubble is open on the bars
+  const [tip, setTip] = useState(null);
+  // donut slice currently selected
+  const [ring, setRing] = useState(null);
   // Date range for the current view
   const [from, to] = all ? ['0000-01-01', today()] : monthRange(...ym);
   // Transactions in range, with recurring entries expanded into each occurrence
@@ -42,6 +46,8 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
         .filter(([, , v]) => v > 0)
         .map(([label, color, v]) => { const len = (v / total) * C; const s = { label, color, len, off, v }; off += len; return s; })
     : [];
+  // selected slice, if any
+  const seg = segs.find(s => s.label === ring);
   // Largest category gets the full-width bar
   const max = byCat[0]?.[1] || 1;
   // Newest first. Only the first 25 show until "Show more" is tapped for this period.
@@ -71,16 +77,27 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
 
     {/* Donut chart: colored slices = spending by category, mustard = what is left, net balance in the middle */}
     <div className="donut">
-      <svg viewBox="0 0 200 200" role="img" aria-label={`Net balance ${money(net)}`}>
+      <svg viewBox="0 0 200 200" role="group" aria-label="Spending by category" onClick={() => setRing(null)}>
         {total === 0 && <circle cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke="#dcb48f" />}
         {segs.map(s => (
-          <circle key={s.label} cx="100" cy="100" r="80" fill="none" strokeWidth="26" stroke={s.color}
-            strokeDasharray={`${s.len} ${C - s.len}`} strokeDashoffset={-s.off}>
+          <circle key={s.label} cx="100" cy="100" r="80" fill="none" strokeWidth={ring === s.label ? 32 : 26} stroke={s.color}
+            strokeDasharray={`${s.len} ${C - s.len}`} strokeDashoffset={-s.off}
+            style={{ cursor: 'pointer', opacity: seg && seg !== s ? 0.35 : 1 }}
+            role="button" tabIndex={0} aria-label={`${s.label}: ${money(s.v)}`}
+            onClick={e => { e.stopPropagation(); setRing(ring === s.label ? null : s.label); }}
+            onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setRing(ring === s.label ? null : s.label)}>
             <title>{s.label}: {money(s.v)}</title>
           </circle>
         ))}
       </svg>
-      <div><span>Net balance</span><b>{money(net)}</b></div>
+      <div>
+        {seg ? <>
+          <span className="lbl"><i className="dot" style={{ background: seg.color }} />{seg.label === 'Left' ? 'Left over' : seg.label}</span>
+          <b>{money(seg.v)}</b>
+        </> : <>
+          <span>Net balance</span><b>{money(net)}</b>
+        </>}
+      </div>
     </div>
 
     {/* Income, expenses and savings rate */}
@@ -100,7 +117,15 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
     <details open><summary>Spending by Category</summary>
       {byCat.length === 0 && <p className="mid">No expenses in this period yet.</p>}
       {byCat.map(([c, v]) => (
-        <div className="cat" key={c} title={money(v)}><span>{c}</span><i style={{ width: `${(v / max) * 100}%`, background: catColor(c, colors) }} /></div>
+        <div className="cat" key={c} role="button" tabIndex={0} aria-label={`${c}: ${money(v)}`}
+          onClick={() => setTip(tip === c ? null : c)}
+          onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setTip(tip === c ? null : c)}>
+          <span>{c}</span>
+          <div className="barwrap">
+            <i style={{ width: `${(v / max) * 100}%`, background: catColor(c, colors) }} />
+            {tip === c && <span className="bubble" style={{ left: `${Math.min(85, Math.max(15, (v / max) * 100))}%` }}>{money(v)}</span>}
+          </div>
+        </div>
       ))}
     </details>
 
