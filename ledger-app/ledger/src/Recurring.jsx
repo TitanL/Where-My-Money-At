@@ -34,7 +34,8 @@ export default function Recurring({ txs, onEdit, colors }) {
     <b className="red sub">-{money(total(bills))}</b>
     {/* Income section and its total */}
     <h2>Income</h2>
-    <List items={inc} cls="mus" sign="+" />
+    <List items={inc} />
+    <b className="mus sub">{sgn(total(inc))}</b>
     <h3 className="sub">Total Monthly Income</h3>
     <b className="mus sub">+{money(total(inc))}</b>
   </>;
