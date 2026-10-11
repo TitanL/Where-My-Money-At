@@ -27,10 +27,12 @@ export default function Import({ user, categories, onDone }) {
   // File rows, column mapping and the preview rows
   const [raw, setRaw] = useState(null), [cols, setCols] = useState([]), [map, setMap] = useState({});
   const [flip, setFlip] = useState(false), [rows, setRows] = useState(null), [busy, setBusy] = useState(false);
+  const [fileName, setFileName] = useState('');
 
   // Parse the chosen CSV and guess which columns hold date, title and amount
   const load = e => {
     const file = e.target.files[0]; if (!file) return;
+    setFileName(file.name);
     Papa.parse(file, { header: true, skipEmptyLines: true, complete: r => {
       const c = r.meta.fields || [];
       setRaw(r.data); setCols(c); setRows(null);
@@ -80,7 +82,13 @@ export default function Import({ user, categories, onDone }) {
     {/* Step 1: choose the file */}
     <h1 className="title">Import</h1>
     <p>Choose a CSV exported from your bank.</p>
-    <input type="file" accept=".csv,text/csv" onChange={load} />
+    <div className="file-row">
+      <label className="btn file-btn">
+        Choose CSV file
+        <input type="file" accept=".csv,text/csv" onChange={load} />
+      </label>
+      {fileName && <span className="file-name">{fileName}</span>}
+    </div>
     {/* Step 2: match columns */}
     {raw && !rows && <>
       <h3>Match your columns</h3>

@@ -12,7 +12,7 @@ import Import from './Import';
 import { Goal, Settings, Account } from './Pages';
 
 // Sidebar menu items: [screen key, label]
-const NAV = [['home', 'Dashboard'], ['recurring', 'Recurring Bills'], ['goal', 'Savings Goal'], ['import', 'Import'], ['settings', 'Settings'], ['account', 'Account']];
+const NAV = [['home', 'Dashboard'], ['recurring', 'Recurring Bills'], ['goal', 'Savings Calculator'], ['import', 'Import'], ['settings', 'Settings'], ['account', 'Account']];
 
 export default function App() {
   // undefined = still checking login, null = logged out
@@ -72,12 +72,11 @@ export default function App() {
         </nav>
       </>}
       {/* Current screen */}
-      {view === 'home' && <Dashboard txs={txs} goal={settings.savingsGoal} onEdit={edit} colors={colors} />}
+      {view === 'home' && <Dashboard txs={txs} goal={settings.savingsGoal} goalPct={settings.savingsGoalMode === 'percent' ? settings.savingsGoalPct : null} onEdit={edit} colors={colors} />}
       {view === 'recurring' && <Recurring txs={txs} onEdit={edit} colors={colors} />}
-      {view === 'goal' && <Goal user={user} settings={settings} />}
+      {view === 'goal' && <Goal user={user} settings={settings} txs={txs} categories={cats} colors={colors} />}
       {view === 'import' && <Import user={user} categories={cats} onDone={() => go('home')} />}
-      {view === 'settings' && <Settings user={user} categories={cats} colors={colors} theme={theme} onTheme={setTheme} />}
-      {view === 'account' && <Account user={user} />}
+      {view === 'settings' && <Settings user={user} categories={cats} colors={colors} theme={theme} onTheme={setTheme} txs={txs} settings={settings} />}      {view === 'account' && <Account user={user} />}
       {/* Floating add button (dashboard and recurring screens only) */}
       {(view === 'home' || view === 'recurring') && <button className="fab" aria-label="Add entry" onClick={() => setEditing({})}>+</button>}
       {/* Add / edit entry form (full-screen sheet) */}

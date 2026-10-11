@@ -6,7 +6,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 // Donut ring circumference (radius 80), used to draw the arc
 const C = 2 * Math.PI * 80;
 
-export default function Dashboard({ txs, goal, onEdit, colors }) {
+export default function Dashboard({ txs, goal, goalPct, onEdit, colors }) {
   // ── View state: which month, and Monthly vs All Time ──
   const n = new Date();
   const [ym, setYm] = useState([n.getFullYear(), n.getMonth()]);
@@ -43,8 +43,9 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
   const income = sum('income'), expense = sum('expense'), net = income - expense;
   // Savings rate = net ÷ income
   const rate = income > 0 ? (net / income) * 100 : 0;
-  // Progress toward the monthly savings goal (0 to 1)
-  const gp = goal > 0 ? Math.min(1, Math.max(0, net) / goal) : 0;
+  // Goal in dollars: a percentage goal is worked out from the viewed month's income
+  const goalAmt = goalPct != null ? (income * goalPct) / 100 : goal;
+  const gp = goalAmt > 0 ? Math.min(1, Math.max(0, net) / goalAmt) : 0;
   // Expenses grouped by category, largest first
   const byCat = Object.entries(es.filter(e => e.type === 'expense').reduce((a, e) => (a[e.category] = (a[e.category] || 0) + e.amount, a), {})).sort((a, b) => b[1] - a[1]);
   // Donut slices: one per spending category, then what's left in mustard.
@@ -119,7 +120,7 @@ export default function Dashboard({ txs, goal, onEdit, colors }) {
 
     {/* Savings goal progress bar (monthly view only) */}
     {!all && <>
-      <div className="row"><h3>Monthly Savings Goal:</h3><small><b>{money(Math.max(0, net))} / {money(goal || 0)}</b></small></div>
+      <div className="row"><h3>Monthly Savings Goal:</h3><small><b>{money(Math.max(0, net))} / {money(goalAmt || 0)}</b></small></div>
       <div className="track"><i style={{ width: `${gp * 100}%` }} /></div>
     </>}
 

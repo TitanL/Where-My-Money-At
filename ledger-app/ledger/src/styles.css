@@ -171,3 +171,45 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:var(
 .themes button{display:grid;justify-items:center;gap:6px;font-weight:700;font-size:.85rem}
 .themes i{display:block;width:44px;height:44px;border-radius:50%;border:5px solid}
 .themes .on i{outline:3px solid var(--dark);outline-offset:3px}
+
+/* ── Savings calculator ── */
+.calc-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0;font-weight:700}
+.calc-row .btn{margin:0}
+.pct-val{font-size:1.4rem;font-weight:800;color:var(--red)}
+.calc-row .money-field{width:120px;margin:0}
+.calc-row .money-field .pill-input{font-size:1.1rem}
+.money-field.pct span{left:auto;right:18px}
+.money-field.pct .pill-input{padding-left:18px;padding-right:38px}
+.picker{position:relative;width:min(240px,55%)}
+.picker .menu{margin-top:6px}
+.picker-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:10px 16px;border:2px solid var(--mid);border-radius:99px;text-align:left}
+.picker-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.picker-btn .ph{color:var(--mid)}
+.picker-btn i{font-style:normal;font-size:.8rem}
+.mode{display:flex;gap:8px}
+.mode button{padding:2px 12px;border-radius:99px;font-weight:700;font-size:.85rem;color:var(--mid)}
+.mode .on{background:var(--mid);color:var(--on-mid)}
+
+/* ── Login / create account ── */
+.auth{display:block;padding-top:clamp(48px,14vh,150px)}
+.logo{display:block;width:130px;margin:0 auto 18px}
+.auth h1{font-size:clamp(1.5rem,6.6vw,2.2rem);margin:0 0 28px}
+.auth-field{background:transparent;color:var(--dark);font-weight:700;font-size:1.15rem;margin:0 0 16px}
+.auth-field::placeholder{color:var(--dark);opacity:1}
+.auth-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.auth-row .btn{margin:0}
+.auth-row .link{margin:0;color:var(--dark);font-weight:700}
+
+/* ── Import: file button ── */
+.file-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.file-btn{position:relative;display:inline-block;overflow:hidden;margin:0}
+.file-btn:focus-within{outline:3px solid var(--mus);outline-offset:2px}
+.file-btn input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.file-name{font-weight:600;color:var(--mid);overflow-wrap:anywhere}
+
+/* ── Settings: edit category popup ── */
+.chip .chip-main{display:flex;align-items:center;gap:8px;padding:0;color:inherit;font-weight:600}
+.pop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:22;width:min(320px,calc(100vw - 40px));display:flex;flex-direction:column;gap:12px;padding:18px;background:var(--dark);color:var(--tan);border:1px solid var(--mid);border-radius:22px;box-shadow:0 8px 24px #0008}
+.pop .pill-input{margin:0}
+.pop .swatches{margin:0}
+.pop .swatches button.on,.pop .colorpick.on{outline-color:var(--tan)}

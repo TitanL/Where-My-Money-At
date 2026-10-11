@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
+import logo from './assets/logo.png';
 
 export default function Auth() {
   // mode: "in" = log in, "up" = create account
@@ -14,17 +15,22 @@ export default function Auth() {
   };
   // Email + password form with a switch between log in and sign up
   return (
-    <div className="app auth">
-      <h1>Ledger</h1>
-      <form onSubmit={go}>
-        <input className="pill-input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-        <input className="pill-input" type="password" placeholder="Password (6+ characters)" value={pw} onChange={e => setPw(e.target.value)} required minLength={6} />
-        {err && <p className="red">{err}</p>}
+  <div className="app auth">
+    <img className="logo" src={logo} alt="" />
+    <h1>Where My Money At?</h1>
+    <form onSubmit={go}>
+      <input className="pill-input field auth-field" type="email" placeholder={mode === 'in' ? 'Email' : 'Enter Email'}
+        value={email} onChange={e => setEmail(e.target.value)} required />
+      <input className="pill-input field auth-field" type="password" placeholder={mode === 'in' ? 'Password (6+ characters)' : 'New Password (6+ characters)'}
+        value={pw} onChange={e => setPw(e.target.value)} required minLength={6} />
+      {err && <p className="red">{err}</p>}
+      <div className="auth-row">
         <button className="btn">{mode === 'in' ? 'Log in' : 'Create account'}</button>
-      </form>
-      <button className="link" onClick={() => setMode(mode === 'in' ? 'up' : 'in')}>
-        {mode === 'in' ? 'New here? Create an account' : 'Have an account? Log in'}
-      </button>
-    </div>
-  );
+        <button type="button" className="link" onClick={() => setMode(mode === 'in' ? 'up' : 'in')}>
+          {mode === 'in' ? 'Create an account' : 'Have an account? Log in'}
+        </button>
+      </div>
+    </form>
+  </div>
+);
 }
