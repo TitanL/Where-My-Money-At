@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth } from './firebase';
 import logo from './assets/logo.png';
 
-export default function Auth() {
+export default function Auth({ onGuest }) {
   // mode: "in" = log in, "up" = create account
   const [mode, setMode] = useState('in'), [email, setEmail] = useState(''), [pw, setPw] = useState(''), [err, setErr] = useState('');
   // Submit: log in or create the account; show Firebase's error message if it fails
@@ -30,6 +30,8 @@ export default function Auth() {
           {mode === 'in' ? 'Create an account' : 'Have an account? Log in'}
         </button>
       </div>
+      <button type="button" className="guest-btn" onClick={onGuest}>Guest Mode</button>
+      <p className="guest-note">Try the app with demo data. Nothing is saved.</p>
     </form>
   </div>
 );

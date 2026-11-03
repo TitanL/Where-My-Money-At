@@ -1,7 +1,6 @@
 // EntryForm.jsx: add / edit entry form, with the date calendar, recurrence menu and receipt photo.
 import { useEffect, useState } from 'react';
-import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { addTx, updateTx, deleteTx } from './store';
 import { pad, today, freqLabel } from './lib';
 
 // Weekday headers for the calendar
@@ -85,6 +84,9 @@ function RecMenu({ value, onDone, onCancel }) {
       <h4>Custom Recurrence</h4>
       {opts.map(([k, l]) => <button type="button" key={k} className={freq === k ? 'sel' : ''} onClick={() => setFreq(k)}>{l}</button>)}
       {weekly && <div className="onrow"><span>On:</span><DayDropdown value={weekday} onChange={setWeekday} /></div>}
+        {freq === 'monthly' && (
+        <label>On: <input inputMode="numeric" placeholder="None" value={day} onChange={e => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))} /></label>
+      )}
       <div className="acts">
         <button type="button" onClick={onCancel}>Cancel</button>
         <button type="button" className="btn sm" onClick={() => onDone({
@@ -131,13 +133,13 @@ export default function EntryForm({ user, tx, categories, onClose }) {
     setBusy(true); setErr('');
     try {
       const data = { title: f.title.trim(), category: f.category, amount, type: f.type, date: f.date, recurrence: f.recurrence, notes: f.notes, photo: f.photo };
-      if (tx.id) await updateDoc(doc(db, 'users', user.uid, 'transactions', tx.id), data);
-      else await addDoc(collection(db, 'users', user.uid, 'transactions'), { ...data, createdAt: serverTimestamp() });
+      if (tx.id) await updateTx(user, tx.id, data);
+      else await addTx(user, data);
       onClose();
     } catch (e) { setErr(e.message); setBusy(false); }
   }
   // Delete the entry after confirming
-  const remove = async () => { if (confirm('Delete this entry?')) { await deleteDoc(doc(db, 'users', user.uid, 'transactions', tx.id)); onClose(); } };
+  const remove = async () => { if (confirm('Delete this entry?')) { await deleteTx(user, tx.id); onClose(); } };
 
   return (
     <div className="overlay"><div className="sheet">

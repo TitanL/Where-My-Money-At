@@ -1,12 +1,9 @@
 // Pages.jsx: the smaller screens (Savings Goal, Settings, Account).
 import { useEffect, useRef, useState } from 'react';
-import { doc, setDoc, writeBatch } from 'firebase/firestore';
+import { auth } from './firebase';
+import { saveSettings, recategorize } from './store';
 import { sendPasswordResetEmail, signOut } from 'firebase/auth';
-import { auth, db } from './firebase';
 import { catColor, THEMES, expand, monthRange, money, incomeTotal, balanceEffect, isIncomeCat } from './lib';
-
-// Settings live in one document per user: users/{uid}/meta/settings
-const settingsRef = user => doc(db, 'users', user.uid, 'meta', 'settings');
 
 // Category dropdown (same look as the dashboard filter): tick several categories, closes on tap outside
 function CategoryPicker({ options, value, onChange, colors }) {
@@ -44,7 +41,7 @@ function CategoryPicker({ options, value, onChange, colors }) {
 
 // Savings Calculator & Goal screen: Needs, Wants and the monthly savings goal
 export function Goal({ user, settings, txs, categories, colors }) {
-  const save = data => setDoc(settingsRef(user), data, { merge: true });
+  const save = data => saveSettings(user, data);
 
   // This month's income and expenses (same range as the dashboard's monthly view)
   const now = new Date(), [from, to] = monthRange(now.getFullYear(), now.getMonth());
@@ -163,7 +160,7 @@ export function Settings({ user, categories, colors, theme, onTheme, txs, settin
   // custom color picked with the + button (null = none yet)
   const [custom, setCustom] = useState(null);
   // Merge changes into the settings document
-  const save = data => setDoc(settingsRef(user), data, { merge: true });
+  const save = data => saveSettings(user, data);
   // Switch theme right away and save it to the account
   const pickTheme = k => { onTheme(k); save({ theme: k }); };
   // Category being edited (null = popup closed)
@@ -173,16 +170,11 @@ export function Settings({ user, categories, colors, theme, onTheme, txs, settin
     if (newName === oldName) { await save({ categoryColors: { [oldName]: color } }); return; }
     const swap = list => (list || []).map(x => (x === oldName ? newName : x));
     const { [oldName]: _old, ...rest } = colors;
-    await setDoc(settingsRef(user), {
+    await saveSettings(user, {
       categories: swap(categories), categoryColors: { ...rest, [newName]: color },
       needsCats: swap(settings.needsCats), wantsCats: swap(settings.wantsCats),
-    }, { mergeFields: ['categories', 'categoryColors', 'needsCats', 'wantsCats'] });
-    const hits = txs.filter(t => t.category === oldName);
-    for (let i = 0; i < hits.length; i += 400) {
-      const b = writeBatch(db);
-      hits.slice(i, i + 400).forEach(t => b.update(doc(db, 'users', user.uid, 'transactions', t.id), { category: newName }));
-      await b.commit();
-    }
+    }, ['categories', 'categoryColors', 'needsCats', 'wantsCats']);
+    await recategorize(user, txs, oldName, newName);
   };
   // Add a new category with the chosen color (ignores blanks and duplicates)
   const add = () => {
@@ -236,8 +228,13 @@ export function Settings({ user, categories, colors, theme, onTheme, txs, settin
 }
 
 // Account screen: email, password reset and log out
-export function Account({ user }) {
+export function Account({ user, onExit }) {
   const [sent, setSent] = useState(false);
+  if (user.isGuest) return <>
+    <h1 className="title">Account</h1>
+    <p>You're browsing in <b>guest mode</b>. This is demo data, and nothing you change is saved.</p>
+    <button className="btn" onClick={onExit}>Exit guest mode</button>
+  </>;
   return <>
     <h1 className="title">Account</h1>
     <p>Signed in as <b>{user.email}</b></p>

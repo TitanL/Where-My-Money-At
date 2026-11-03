@@ -1,8 +1,7 @@
 // Import.jsx: bank CSV import. Choose a file, match columns, set categories, then save.
 import { useState } from 'react';
 import Papa from 'papaparse';
-import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore';
-import { db } from './firebase';
+import { addTxs } from './store';
 import { pad, money } from './lib';
 
 // ── CSV parsing helpers ── First column whose header matches a pattern (used to auto-pick columns)
@@ -54,20 +53,15 @@ export default function Import({ user, categories, onDone }) {
   // Set one category on every expense row
   const setAll = category => setRows(rs => rs.map(r => (r.type === 'expense' ? { ...r, category } : r)));
 
-  // Write the included rows to Firestore in batches of 400
-  const save = async () => {
-    setBusy(true);
-    const pick = rows.filter(r => r.on);
-    for (let i = 0; i < pick.length; i += 400) {
-      const b = writeBatch(db);
-      pick.slice(i, i + 400).forEach(r => b.set(doc(collection(db, 'users', user.uid, 'transactions')), {
-        title: r.title, category: r.category, amount: r.amount, type: r.type, date: r.date,
-        recurrence: { freq: 'none', day: null }, notes: 'Imported from CSV', photo: '', createdAt: serverTimestamp(),
-      }));
-      await b.commit();
-    }
-    onDone();
-  };
+ // Add the included rows as new entries
+const save = async () => {
+  setBusy(true);
+  await addTxs(user, rows.filter(r => r.on).map(r => ({
+    title: r.title, category: r.category, amount: r.amount, type: r.type, date: r.date,
+    recurrence: { freq: 'none', day: null }, notes: 'Imported from CSV', photo: '',
+  })));
+  onDone();
+};
 
   // Column-picker dropdown
   const Pick = ({ k, label, optional }) => (

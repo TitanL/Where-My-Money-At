@@ -1,5 +1,5 @@
 // App.jsx: app shell. Handles login state, syncs data from Firestore, and switches between screens.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -10,6 +10,8 @@ import Recurring from './Recurring';
 import EntryForm from './EntryForm';
 import Import from './Import';
 import { Goal, Settings, Account } from './Pages';
+import { bindGuest } from './store';
+import { guestData, GUEST_USER } from './guest';
 
 // Sidebar menu items: [screen key, label]
 const NAV = [['home', 'Dashboard'], ['recurring', 'Recurring Bills'], ['goal', 'Savings Calculator'], ['import', 'Import'], ['settings', 'Settings'], ['account', 'Account']];
@@ -25,6 +27,10 @@ export default function App() {
   const [view, setView] = useState('home'), [menu, setMenu] = useState(false), [editing, setEditing] = useState(null);
   // current theme key: coffee, matcha or ube
   const [theme, setTheme] = useState(savedTheme); 
+  // true while browsing the demo (nothing is saved)
+  const [guest, setGuest] = useState(false);
+  // theme to restore when leaving guest mode
+  const prevTheme = useRef(null);            
 
   // Track login state
   useEffect(() => onAuthStateChanged(auth, u => {
@@ -46,9 +52,25 @@ export default function App() {
   // If the account has a saved theme (e.g. picked on another device), use it
   useEffect(() => { if (settings.theme && settings.theme !== theme) setTheme(settings.theme); }, [settings.theme]);
   
+  // Guest mode: store.js sends every "save" to these setters instead of Firestore
+  useEffect(() => { bindGuest({ setTxs, setSettings }); }, []);
+  // Enter the demo: load the preset data into memory only
+  const startGuest = () => {
+    const g = guestData();
+    prevTheme.current = theme;
+    setTxs(g.txs); setSettings(g.settings); setView('home'); setGuest(true);
+  };
+  // Leave the demo: throw the demo data away and go back to the login screen
+  const exitGuest = () => {
+    setGuest(false); setTxs([]); setSettings({ savingsGoal: 500, categories: DEFAULT_CATS });
+    setView('home'); setMenu(false); setEditing(null);
+    if (prevTheme.current) setTheme(prevTheme.current);
+  };
+  
   // Loading screen, then login screen, before the app itself
   if (user === undefined) return <div className="app"><p>Loading…</p></div>;
-  if (!user) return <Auth />;
+  if (!user && !guest) return <Auth onGuest={startGuest} />;
+  const me = guest ? GUEST_USER : user; // the "user" the screens save as
 
   // Open the entry form for a transaction (recurring occurrences map back to their stored entry)
   const edit = t => setEditing(txs.find(x => x.id === (t._tid || t.id)) || {});
@@ -63,6 +85,12 @@ export default function App() {
 
   return (
     <div className="app">
+      {guest && (
+        <div className="guest-bar">
+          <span>Guest mode: demo data, nothing is saved.</span>
+          <button onClick={exitGuest}>Exit</button>
+        </div>
+      )}
       {/* Sidebar toggle */}
       <button className="burger" aria-label="Open menu" onClick={() => setMenu(true)}><i /><i /><i /></button>
       {/* Sidebar menu (always mounted so it can slide in and out) */}
@@ -74,13 +102,14 @@ export default function App() {
       {/* Current screen */}
       {view === 'home' && <Dashboard txs={txs} goal={settings.savingsGoal} goalPct={settings.savingsGoalMode === 'percent' ? settings.savingsGoalPct : null} onEdit={edit} colors={colors} />}
       {view === 'recurring' && <Recurring txs={txs} onEdit={edit} colors={colors} />}
-      {view === 'goal' && <Goal user={user} settings={settings} txs={txs} categories={cats} colors={colors} />}
-      {view === 'import' && <Import user={user} categories={cats} onDone={() => go('home')} />}
-      {view === 'settings' && <Settings user={user} categories={cats} colors={colors} theme={theme} onTheme={setTheme} txs={txs} settings={settings} />}      {view === 'account' && <Account user={user} />}
+      {view === 'goal' && <Goal user={me} settings={settings} txs={txs} categories={cats} colors={colors} />}
+      {view === 'import' && <Import user={me} categories={cats} onDone={() => go('home')} />}
+      {view === 'settings' && <Settings user={me} categories={cats} colors={colors} theme={theme} onTheme={setTheme} txs={txs} settings={settings} />}      
+      {view === 'account' && <Account user={me} onExit={exitGuest} />}
       {/* Floating add button (dashboard and recurring screens only) */}
       {(view === 'home' || view === 'recurring') && <button className="fab" aria-label="Add entry" onClick={() => setEditing({})}>+</button>}
       {/* Add / edit entry form (full-screen sheet) */}
-      {editing && <EntryForm user={user} tx={editing} categories={cats} onClose={() => setEditing(null)} />}
+      {editing && <EntryForm user={me} tx={editing} categories={cats} onClose={() => setEditing(null)} />}
     </div>
   );
 }

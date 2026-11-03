@@ -227,4 +227,10 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:var(
   .scrim.fade{transition:opacity .3s ease}
   .overlay{animation:fade-in .25s ease-out}
   .sheet{animation:sheet-in .3s cubic-bezier(.2,.8,.2,1)}
+
+/* ── Guest mode ── */
+.guest-btn{display:block;margin:28px auto 0;padding:10px 26px;border:2px solid var(--mid);border-radius:99px;font-weight:700;color:var(--mid)}
+.guest-note{text-align:center;font-size:.85rem;color:var(--mid);margin:8px 0 0}
+.guest-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 10px;padding:6px 14px;border-radius:99px;background:var(--dark);color:var(--tan);font-size:.8rem;font-weight:700}
+.guest-bar button{text-decoration:underline;color:inherit}
 }
