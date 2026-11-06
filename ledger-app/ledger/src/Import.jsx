@@ -88,7 +88,7 @@ const save = async () => {
       <h3>Match your columns</h3>
       <Pick k="date" label="Date" /><Pick k="title" label="Title" /><Pick k="amount" label="Amount / Debit" />
       <Pick k="credit" label="Credit (if separate)" optional />
-      {!map.credit && <label><input type="checkbox" checked={flip} onChange={e => setFlip(e.target.checked)} /> Positive amounts are expenses</label>}
+      {!map.credit && <label className="check"><input type="checkbox" checked={flip} onChange={e => setFlip(e.target.checked)} /> Positive amounts are expenses</label>}
       <button className="btn" onClick={preview}>Preview {raw.length} rows</button>
     </>}
     {/* Step 3: preview, set categories and save */}

@@ -234,3 +234,11 @@ td{padding:6px 6px;border-bottom:1px solid var(--line)}td select{background:var(
 .guest-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 10px;padding:6px 14px;border-radius:99px;background:var(--dark);color:var(--tan);font-size:.8rem;font-weight:700}
 .guest-bar button{text-decoration:underline;color:inherit}
 }
+
+/* ── Import: more breathing room ── */
+.file-row{margin-bottom:8px}
+.file-row ~ h3{margin:30px 0 12px}
+.frow.dk{margin:16px 0}
+.frow.dk .pill-input{padding:12px 18px}
+.check{display:flex;align-items:center;gap:10px;margin:22px 0 4px}
+.check + .btn{margin-top:14px}
